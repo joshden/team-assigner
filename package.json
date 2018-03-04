@@ -1,0 +1,28 @@
+{
+  "name": "team-assigner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshden/team-assigner.git"
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/joshden/team-assigner/issues"
+  },
+  "homepage": "https://github.com/joshden/team-assigner#readme",
+  "devDependencies": {
+    "@types/lodash": "^4.14.104",
+    "@types/node": "^9.4.6",
+    "@types/xlsx": "0.0.36",
+    "lodash": "^4.17.5",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.7.2",
+    "xlsx": "^0.12.3"
+  }
+}
