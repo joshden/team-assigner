@@ -33,10 +33,10 @@ export default function parseSheet(filePath: string, sheetName: string) {
             else {
                 if (currentRowNum !== newRowNum) {
                     currentRowNum = newRowNum;
-                    currentRow = {};
+                    currentRow = { $rowNum: newRowNum.toFixed() };
                     rows.push(currentRow)
                 }
-            currentRow[colHeaders[colLetter]] = cellValue;
+                currentRow[colHeaders[colLetter]] = cellValue;
             }
 
         }

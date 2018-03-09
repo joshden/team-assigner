@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 
 const rows = parseSheet(__dirname + '/../conv reg 2017.xls', 'Sheet1');
 
+const parentFields = ['LastName', 'FirstName', 'SpouseLastName', 'SpouseFirstName'];
 const childFields = ['ChildName', 'ChildGender', 'ChildBirthday', 'ChildShirtSize'];
 const children = [];
 
@@ -11,8 +12,8 @@ rows.forEach((row, index) => {
     row.ChildBirthday2 = row.ChildBirdthday2;
     delete row.ChildBirdthday2; 
 
-    const parents = {};
-    ['LastName','FirstName','SpouseLastName','SpouseFirstName'].forEach(field => parents[field] = row[field]);
+    const parents = { $rowNum: row.$rowNum };
+    parentFields.forEach(field => parents[field] = row[field]);
 
     _.range(1, 6).forEach(childNum => {
         const child: {[field: string]: any} = {};
@@ -26,7 +27,7 @@ rows.forEach((row, index) => {
             }
         });
         if (isChild) {
-            child.regIndex = index;
+            child.$childNum = childNum;
             child.Notes = row.Notes;
             child.parents = parents;
             children.push(child);
