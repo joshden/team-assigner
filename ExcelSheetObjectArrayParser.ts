@@ -25,7 +25,7 @@ export default function parseSheet(filePath: string, sheetName: string) {
             }
             const colLetter = match[1];
             const newRowNum = Number(match[2]);
-            const cellValue = sheet[address].v as string;
+            const cellValue = sheet[address].v.trim() as string;
 
             if (newRowNum === 1) {
                 colHeaders[colLetter] = cellValue;
