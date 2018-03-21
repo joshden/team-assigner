@@ -1,14 +1,13 @@
 import * as moment from 'moment';
 import Team from './Team';
 import Parents from './Parents';
+import AssignmentRule from './AssignmentRule';
 
 export default class Child {
-    readonly parents: Parents;
     private _team: Team;
+    assignmentRules: AssignmentRule[];
 
-    constructor(parents: Parents) {
-        this.parents = parents;
-    }
+    constructor(readonly parents: Parents, readonly notes: string) { }
 
     get firstName() {
         return '';
@@ -25,8 +24,13 @@ export default class Child {
         throw new Error('not implemented');
     }
 
-    shoulNotdHaveInGroup(otherChild : Child) {
+    shouldNotHaveInGroup(otherChild : Child) {
         throw new Error('not implemented');
+    }
+
+    findSiblings(children: Child[]) {
+        const siblings: Child[] = [];
+        return siblings;
     }
 
 }
