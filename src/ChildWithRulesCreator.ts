@@ -1,5 +1,5 @@
-import {Child, ChildWithRules} from "./Child";
-import AssignmentRuleMapping from "./AssignmentRuleMapping";
+import { Child, ChildWithRules } from "./Child";
+import { AssignmentRuleMapping } from "./AssignmentRuleMapping";
 import { Team } from "./Team";
 import AssignmentRule from "./AssignmentRule";
 

@@ -7,6 +7,7 @@ export interface Child {
     readonly parents: Parents;
     readonly notes: string;
     readonly firstName: string;
+    readonly lastName: string;
     readonly dateOfBirth: Date;
     findSiblings(children: Child[]): Child[];
 }
@@ -26,6 +27,10 @@ abstract class ChildDecorator implements Child {
         return this.child.firstName;
     }
 
+    get lastName() {
+        return this.child.lastName;
+    }
+
     get dateOfBirth() {
         return this.child.dateOfBirth;
     }
@@ -40,6 +45,7 @@ export class BaseChild implements Child {
         readonly parents: Parents,
         readonly notes: string,
         readonly firstName: string = '',
+        readonly lastName: string = '',
         readonly dateOfBirth: Date
     ) {}
 
