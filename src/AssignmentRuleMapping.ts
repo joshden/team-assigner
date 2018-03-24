@@ -1,6 +1,6 @@
-import Child from "./Child";
+import { Child } from "./Child";
 import AssignmentRule from "./AssignmentRule";
-import Team from "./Team";
+import { Team } from "./Team";
 
 export default class AssignmentRuleMapping {
 

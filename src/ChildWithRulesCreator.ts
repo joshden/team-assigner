@@ -1,9 +1,9 @@
-import Child from "./Child";
+import {Child, ChildWithRules} from "./Child";
 import AssignmentRuleMapping from "./AssignmentRuleMapping";
-import Team from "./Team";
+import { Team } from "./Team";
 import AssignmentRule from "./AssignmentRule";
 
-export default function createAssignmentRules(child: Child, assignmentRuleMappings: AssignmentRuleMapping[], otherChildren: Child[], assignableTeams: Team[]) {
+export default function getChildWithRules(child: Child, assignmentRuleMappings: AssignmentRuleMapping[], otherChildren: Child[], assignableTeams: Team[]) {
     const assignmentRules: AssignmentRule[] = [];
     const childrenInvolvedInRules: Child[] = [];
 
@@ -25,5 +25,6 @@ export default function createAssignmentRules(child: Child, assignmentRuleMappin
         .filter(sibling => ! childrenInvolvedInRules.includes(sibling))
         .forEach(sibling => assignmentRules.push(AssignmentRule.withChild(sibling)));
 
-    return assignmentRules;
+    const compositeRule = assignmentRules.length === 1 ? assignmentRules[0] : AssignmentRule.and(assignmentRules);
+    return new ChildWithRules(child, compositeRule);
 }

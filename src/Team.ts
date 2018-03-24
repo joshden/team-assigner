@@ -1,17 +1,20 @@
-import Child from "./Child";
+import {Child, ChildOnTeam} from "./Child";
 import Teacher from "./Teacher";
 
-export default class Team {
-    private readonly _children: Child[] = [];
+export class Team {
+    constructor(
+        readonly teamNumber: number, 
+        readonly teachers: Teacher[]
+    ) { }
+}
 
-    constructor(readonly teamNumber: number, readonly teachers: Teacher[]) { }
+export class AssignedTeam {
+    readonly children: ChildOnTeam[];
 
-    get children() {
-        return this._children;
+    constructor(
+        readonly team: Team,
+        children: Child[]
+    ) {
+        this.children = children.map(child => new ChildOnTeam(child, this.team))
     }
-
-    addChild(child : Child) {
-        this._children.push(child);
-    }
-
 }

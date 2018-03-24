@@ -1,36 +1,68 @@
 import * as moment from 'moment';
-import Team from './Team';
+import {Team} from './Team';
 import Parents from './Parents';
 import AssignmentRule from './AssignmentRule';
 
-export default class Child {
-    private _team: Team;
-    assignmentRules: AssignmentRule[];
+export interface Child {
+    readonly parents: Parents;
+    readonly notes: string;
+    readonly firstName: string;
+    readonly dateOfBirth: Date;
+    findSiblings(children: Child[]): Child[];
+}
 
-    constructor(readonly parents: Parents, readonly notes: string) { }
+abstract class ChildDecorator implements Child {
+    constructor(protected readonly child: Child) {}
+
+    get parents() {
+        return this.child.parents;
+    }
+
+    get notes() {
+        return this.child.notes;
+    }
 
     get firstName() {
-        return '';
+        return this.child.firstName;
     }
 
-    get team() {
-        return this._team;
+    get dateOfBirth() {
+        return this.child.dateOfBirth;
     }
-    set team(team: Team) {
-        this._team = team;
+    
+    findSiblings(children: Child[]) {
+        return this.child.findSiblings(children);
     }
+}
 
-    shouldHaveInGroup(otherChild : Child) {
-        throw new Error('not implemented');
-    }
-
-    shouldNotHaveInGroup(otherChild : Child) {
-        throw new Error('not implemented');
-    }
+export class BaseChild implements Child {
+    constructor(
+        readonly parents: Parents,
+        readonly notes: string,
+        readonly firstName: string = '',
+        readonly dateOfBirth: Date
+    ) {}
 
     findSiblings(children: Child[]) {
         const siblings: Child[] = [];
         return siblings;
     }
+}
 
+export class ChildWithRules extends ChildDecorator {
+    constructor(
+        child: Child, 
+        readonly assignmentRule: AssignmentRule
+    ) {
+        super(child);
+    }
+}
+
+export class ChildOnTeam extends ChildDecorator {
+    constructor(
+        child: Child, 
+        readonly team: Team
+    ) {
+        super(child);
+    }
 }

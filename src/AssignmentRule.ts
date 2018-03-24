@@ -1,5 +1,5 @@
-import Child from "./Child";
-import Team from "./Team";
+import { Child } from "./Child";
+import { Team } from "./Team";
 
 export default class AssignmentRule {
     
@@ -11,13 +11,13 @@ export default class AssignmentRule {
 
     static and(rules: AssignmentRule[]) {
         return new AssignmentRule((child: Child, otherChildren: Child[], team: Team) => {
-            return rules.every(rule => rule.isRuleMet(child, otherChildren, team));
+            return rules.length === 0 || rules.every(rule => rule.isRuleMet(child, otherChildren, team));
         });
     }
 
     static or(rules: AssignmentRule[]) {
         return new AssignmentRule((child: Child, otherChildren: Child[], team: Team) => {
-            return rules.some(rule => rule.isRuleMet(child, otherChildren, team));
+            return rules.length === 0 || rules.some(rule => rule.isRuleMet(child, otherChildren, team));
         });
     }
 
