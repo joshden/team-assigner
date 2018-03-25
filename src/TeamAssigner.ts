@@ -1,6 +1,6 @@
 import { Team, AssignedTeam } from "./Team";
 import { Child, ChildWithRules } from "./Child";
-import AssignmentRule from "./AssignmentRule";
+import { AssignmentRule } from "./AssignmentRule";
 import { AssignmentRuleMapping } from "./AssignmentRuleMapping";
 import AssignmentGroup from "./AssignmentGroup";
 import getChildWithRules from './ChildWithRulesCreator';

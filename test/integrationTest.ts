@@ -1,16 +1,19 @@
 import TeamAssigner from "../src/TeamAssigner";
 import { Team } from "../src/Team";
 import { BaseChild, Child } from "../src/Child";
-import { AssignmentRuleMapping, mapping, matchAll, matchAny, notMatch, child, parent, notes, taughtBy, withChild, withChildrenOf, withFamily, not, any, all } from "../src/AssignmentRuleMapping";
+import { AssignmentRuleMapping, mapping, matchAll, matchAny, notMatch, child, parent, notes } from "../src/AssignmentRuleMapping";
+import { taughtBy, withChild, withChildrenOf, withFamily, not, any, all } from '../src/AssignmentRule';
 import Parents from "../src/Parents";
 import Teacher from "../src/Teacher";
 
 const parents1 = new Parents();
+parents1.names = [{firstName: "PFname", lastName: "PLname"}];
 
 const children: Child[] = [
     new BaseChild(parents1, "Note message. Put with best teacher. Something else", "Jacob", "Lname", new Date()),
     new BaseChild(parents1, "Note message. Put with best teacher. Something else", "Andrew", "Lname", new Date()),
     new BaseChild(new Parents(), "", "Some", "Loner", new Date()),
+    new BaseChild(parents1, "Notes", "FName", "Lname", new Date()),
 ];
 
 const teams: Team[] = [

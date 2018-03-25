@@ -1,5 +1,5 @@
 import * as m from "../src/AssignmentRuleMapping";
-import { all, withChild, any } from "../src/AssignmentRuleMapping";
+import { RuleBuilder, all, withChild, any } from "../src/AssignmentRule";
 import { BaseChild, Child } from "../src/Child";
 import Parents from "../src/Parents";
 import { Team } from "../src/Team";
@@ -25,7 +25,7 @@ describe('RuleBuilder', () => {
         new Team(3, [new Teacher('TF3A', 'TL3A'), new Teacher('TF3B', 'TL3B')]),
     ];
 
-    let ruleBuilder: m.RuleBuilder;
+    let ruleBuilder: RuleBuilder;
 
     it('withChild, all, and any', () => {
         ruleBuilder = all(

@@ -1,7 +1,7 @@
 import * as moment from 'moment';
-import {Team} from './Team';
+import { Team } from './Team';
 import Parents from './Parents';
-import AssignmentRule from './AssignmentRule';
+import { AssignmentRule } from './AssignmentRule';
 
 export interface Child {
     readonly parents: Parents;
