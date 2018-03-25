@@ -62,7 +62,7 @@ export function notMatch(criterion: FindCriteria) {
 }
 
 
-abstract class RuleBuilder {
+export abstract class RuleBuilder {
     potentialMatches: PotentialRuleMatch[] = [];
     // mismatches: PotentialRuleMatch[] = [];
 
@@ -98,8 +98,10 @@ export function taughtBy(firstName, lastName) {
 export function withChild(firstName, lastName) {
     return new class extends RuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
-            const matchingChildren = otherChildren.filter(c => c.firstName === firstName && c.lastName === lastName);
-            // TODO verify exactly one matching team was found
+            const matchingChildren = otherChildren.filter(other => other.firstName === firstName && other.lastName === lastName);
+            if (matchingChildren.length !== 1) {
+                throw new Error(`Looking for 1 child with ${firstName} ${lastName}, but found ${matchingChildren.length}`);
+            }
             this.potentialMatches.push({teammates: [matchingChildren[0]]});
         }
     }();
@@ -146,24 +148,36 @@ export function any(...rules: RuleBuilder[]) {
 export function all(...rules: RuleBuilder[]) {
     return new class extends RuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
-            rules.forEach(rule => {
+            const rulePotentialMatches = rules.map(rule => {
                 rule.populateRule(child, teams, otherChildren);
+                return rule.potentialMatches;
             });
-            this.rescursivelyPopulate(0, []);
+
+            this.recursePermutations(rulePotentialMatches, permutation => {
+                const teammates : Child[] = [];
+                for (var ruleMatch of permutation) {
+                    if (ruleMatch.teammates) {
+                        ruleMatch.teammates.filter(teammate => ! teammates.includes(teammate)).forEach(teammate => teammates.push(teammate));
+                    }
+                }
+                if (teammates.length > 0) {
+                    this.potentialMatches.push({teammates: teammates});
+                }
+            });
         }
 
-        private rescursivelyPopulate(index: number, teammatesFromOtherRules: Child[]) {
-            if (index < rules.length) {
-                const rule = rules[index];
-                rule.potentialMatches.forEach(potentialMatch => {
-                    if (potentialMatch.teammates) {
-                        teammatesFromOtherRules.push(...potentialMatch.teammates.filter(child => ! teammatesFromOtherRules.includes(child)));
-                    }
-                    this.rescursivelyPopulate(index+1, Array.from(teammatesFromOtherRules));
-                });
+        private recursePermutations<T>(arrOfArrays: T[][], callback: (permutation: T[]) => void, i: number = 0, previousElements: T[] = []) {
+            if (i < arrOfArrays.length) {
+                const currentElements = arrOfArrays[i];
+                for (var element of currentElements) {
+                    this.recursePermutations(arrOfArrays, callback, i + 1, previousElements.concat(element));
+                }
+                if (currentElements.length < 1) {
+                    this.recursePermutations(arrOfArrays, callback, i + 1, Array.from(previousElements));
+                }
             }
-            else {
-                this.potentialMatches.push({teammates: teammatesFromOtherRules});
+            else if (previousElements.length > 0) {
+                callback(previousElements);
             }
         }
     }();
