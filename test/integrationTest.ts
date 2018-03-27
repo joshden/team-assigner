@@ -2,12 +2,11 @@ import TeamAssigner from "../src/TeamAssigner";
 import { Team } from "../src/Team";
 import { BaseChild, Child } from "../src/Child";
 import { AssignmentRuleMapping, mapping, matchAll, matchAny, notMatch, child, parent, notes } from "../src/AssignmentRuleMapping";
-import { taughtBy, withChild, withChildrenOf, withFamily, not, any, all } from '../src/AssignmentRule';
+import { taughtBy, withChild, withChildrenOf, not, any, all, withFamily_NotImplemented } from '../src/AssignmentRule';
 import Parents from "../src/Parents";
 import Teacher from "../src/Teacher";
 
-const parents1 = new Parents();
-parents1.names = [{firstName: "PFname", lastName: "PLname"}];
+const parents1 = new Parents({firstName: "PFname", lastName: "PLname"});
 
 const children: Child[] = [
     new BaseChild(parents1, "Note message. Put with best teacher. Something else", "Jacob", "Lname", new Date()),
@@ -32,7 +31,7 @@ const assignmentRuleMappings: AssignmentRuleMapping[] = [
     mapping(notes("Not with mean family."),
         not(withChildrenOf("A", "Meanies"))),
     mapping(notes("Not with mean family."),
-        not(withFamily("Meanies"))),
+        not(withFamily_NotImplemented("Meanies"))),
     mapping(notes("With known teacher or known other child"),
         any(taughtBy("TeachF", "TeachL"), withChild("Someone", "Chiles"))),
     mapping(notes("On specific team with other student"),
