@@ -91,5 +91,8 @@ child2, child4, child5
 child2, child4, child6
 */
 
-
-const assignedTeams = new TeamAssigner().assignTeams(children, teams, assignmentRuleMappings);
+xdescribe('TeamAssigner', () => {
+    it("doesn't fail", () => {
+        const assignedTeams = new TeamAssigner().assignTeams(children, teams, assignmentRuleMappings)
+    });
+});
