@@ -30,7 +30,6 @@ export default function getChildWithRules(child: Child, assignmentRuleMappings: 
     const rules: RuleBuilder[] = [];
     for (const mapping of assignmentRuleMappings) {
         if (mapping.findCriteria.isApplicable(child)) {
-            console.log('yep');
             rules.push(mapping.rule);
         }
     }

@@ -1,5 +1,5 @@
 import * as m from "../src/AssignmentRuleMapping";
-import { RuleBuilder, all, withChild, any } from "../src/AssignmentRule";
+import { RuleBuilder, all, withChild, any, AssignmentRule } from "../src/AssignmentRule";
 import { BaseChild, Child } from "../src/Child";
 import Parents from "../src/Parents";
 import { Team } from "../src/Team";
@@ -25,21 +25,20 @@ describe('RuleBuilder', () => {
         new Team(3, [new Teacher('TF3A', 'TL3A'), new Teacher('TF3B', 'TL3B')]),
     ];
 
-    let ruleBuilder: RuleBuilder;
+    let rule: AssignmentRule;
 
     it('withChild, all, and any', () => {
-        ruleBuilder = all(
-            withChild('B1F', 'B1L'),
-            withChild('C1F', 'C1L'),
-            any(
-                withChild('C2F', 'C2L'),
-                withChild('C3F', 'C3L'),
-            )
-        );
-        
-        populateRule(childA1);
+        rule = getRule(childA1, 
+            all(
+                withChild('B1F', 'B1L'),
+                withChild('C1F', 'C1L'),
+                any(
+                    withChild('C2F', 'C2L'),
+                    withChild('C3F', 'C3L'),
+                )
+            ));
 
-        expect(ruleBuilder.potentialMatches).to.deep.equal([
+        expect(rule.potentialMatches).to.deep.equal([
             {
                 teammates: [childB1, childC1, childC2]
             },
@@ -50,14 +49,13 @@ describe('RuleBuilder', () => {
     });
 
     it('withChild any', () => {
-        ruleBuilder = any(
-            withChild('C2F', 'C2L'),
-            withChild('C3F', 'C3L'),
-        );
-        
-        populateRule(childA1);
+        rule = getRule(childA1, 
+            any(
+                withChild('C2F', 'C2L'),
+                withChild('C3F', 'C3L'),
+            ));
 
-        expect(ruleBuilder.potentialMatches).to.deep.equal([
+        expect(rule.potentialMatches).to.deep.equal([
             {
                 teammates: [childC2]
             },
@@ -68,14 +66,13 @@ describe('RuleBuilder', () => {
     });
 
     it('withChild all', () => {
-        ruleBuilder = all(
-            withChild('C2F', 'C2L'),
-            withChild('C3F', 'C3L'),
-        );
-        
-        populateRule(childA1);
+        rule = getRule(childA1, 
+            all(
+                withChild('C2F', 'C2L'),
+                withChild('C3F', 'C3L'),
+            ));
 
-        expect(ruleBuilder.potentialMatches).to.deep.equal([
+        expect(rule.potentialMatches).to.deep.equal([
             {
                 teammates: [childC2, childC3]
             }
@@ -83,19 +80,16 @@ describe('RuleBuilder', () => {
     });
 
     it('withChild', () => {
-        ruleBuilder = withChild('C2F', 'C2L');
+        rule = getRule(childA1, withChild('C2F', 'C2L'));
         
-        populateRule(childA1);
-
-        expect(ruleBuilder.potentialMatches).to.deep.equal([
+        expect(rule.potentialMatches).to.deep.equal([
             {
                 teammates: [childC2]
             }
         ]);
     });
 
-
-    function populateRule(child: Child) {
-        ruleBuilder.populateRule(child, teams, allChildren.filter(c => c!== childA1));
+    function getRule(child: Child, ruleBuilder: RuleBuilder) {
+        return ruleBuilder.getRule(child, teams, allChildren.filter(c => c!== childA1));
     }
 });
