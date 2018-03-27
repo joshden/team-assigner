@@ -16,7 +16,7 @@ const children: Child[] = [
 ];
 
 const teams: Team[] = [
-    new Team(1, [new Teacher("TeacherFname1", "TeacherLname2"), new Teacher("TeachFname2", "TeacherLname2")])
+    new Team(1, [new Teacher("TeacherFname1", "TeacherLname1"), new Teacher("TeachFname2", "TeacherLname2")])
 ];
 
 const assignmentRuleMappings: AssignmentRuleMapping[] = [
@@ -30,8 +30,8 @@ const assignmentRuleMappings: AssignmentRuleMapping[] = [
         not(taughtBy("TeacherFname2", "TeacherLname2"))),
     mapping(notes("Not with mean family."),
         not(withChildrenOf("A", "Meanies"))),
-    mapping(notes("Not with mean family."),
-        not(withFamily_NotImplemented("Meanies"))),
+    // mapping(notes("Not with mean family."),
+    //     not(withFamily_NotImplemented("Meanies"))),
     mapping(notes("With known teacher or known other child"),
         any(taughtBy("TeachF", "TeachL"), withChild("Someone", "Chiles"))),
     mapping(notes("On specific team with other student"),
@@ -90,7 +90,7 @@ child2, child4, child5
 child2, child4, child6
 */
 
-xdescribe('TeamAssigner', () => {
+describe('TeamAssigner', () => {
     it("doesn't fail", () => {
         const assignedTeams = new TeamAssigner().assignTeams(children, teams, assignmentRuleMappings)
     });
