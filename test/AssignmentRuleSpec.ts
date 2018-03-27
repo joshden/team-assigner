@@ -1,5 +1,5 @@
 import * as m from "../src/AssignmentRuleMapping";
-import { RuleBuilder, all, withChild, any, AssignmentRule } from "../src/AssignmentRule";
+import { RuleBuilder, all, withChild, any, AssignmentRule, taughtBy, not, PotentialRuleMatch } from "../src/AssignmentRule";
 import { BaseChild, Child } from "../src/Child";
 import Parents from "../src/Parents";
 import { Team } from "../src/Team";
@@ -24,6 +24,7 @@ describe('RuleBuilder', () => {
         new Team(2, [new Teacher('TF2A', 'TL2A'), new Teacher('TF2B', 'TL2B')]),
         new Team(3, [new Teacher('TF3A', 'TL3A'), new Teacher('TF3B', 'TL3B')]),
     ];
+    const [team1, team2, team3] = teams;
 
     let rule: AssignmentRule;
 
@@ -89,7 +90,41 @@ describe('RuleBuilder', () => {
         ]);
     });
 
+    it('taughtBy', () => {
+        rule = getRule(childA1, taughtBy('TF2A', 'TL2A'));
+
+        expect(rule.potentialMatches).to.deep.equal([
+            {
+                team: team2
+            }
+        ]);
+    });
+
+    it('not taughtBy', () => {
+        rule = getRule(childA1, not(taughtBy('TF2A', 'TL2A')));
+
+        expect(rule.potentialMatches).to.deep.equal([
+            {
+                notTeams: [team2]
+            }
+        ]);
+    });
+
+    it('not withChild', () => {
+        rule = getRule(childA1, not(withChild('C3F', 'C3L')));
+
+        expectPotentialMatches(rule, [
+            {
+                notTeammates: [ childC3 ]
+            }
+        ]);
+    });
+
     function getRule(child: Child, ruleBuilder: RuleBuilder) {
         return ruleBuilder.getRule(child, teams, allChildren.filter(c => c!== childA1));
+    }
+
+    function expectPotentialMatches(rule: AssignmentRule, expectedPotentialMatches: PotentialRuleMatch[]) {
+        expect(rule.potentialMatches).to.deep.equal(expectedPotentialMatches);
     }
 });

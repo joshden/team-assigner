@@ -8,7 +8,7 @@ export abstract class RuleBuilder {
         this.populateRule(child, teams, otherChildren);
         return new AssignmentRule(this.potentialMatches);
     }
-
+    
     abstract populateRule(child: Child, teams: Team[], otherChildren: Child[]);
 }
 
@@ -36,7 +36,7 @@ export class AssignmentRule {
     }
 }
 
-class PotentialRuleMatch {
+export class PotentialRuleMatch {
     team?: Team;
     teammates?: Child[];
     notTeams?: Team[];
@@ -87,9 +87,16 @@ export function not(rule: RuleBuilder) {
     return new class extends RuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             rule.populateRule(child, teams, otherChildren);
+            rule.potentialMatches.forEach(m => {
+                if (m.team) {
+                    this.potentialMatches.push({notTeams: [m.team]});
+                }
+                if (m.teammates) {
+                    this.potentialMatches.push({notTeammates: m.teammates});
+                }
+            });
             // this.mismatches = rule.potentialMatches;
             // this.potentialMatches = rule.mismatches;
-            throw new Error('Not implemented');
         }
     }();
 }
