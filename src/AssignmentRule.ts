@@ -1,5 +1,6 @@
 import { Child } from "./Child";
 import { Team } from "./Team";
+import { deprecate } from "util";
 
 export abstract class RuleBuilder {
     readonly potentialMatches: PotentialRuleMatch[] = [];
@@ -8,8 +9,12 @@ export abstract class RuleBuilder {
         this.populateRule(child, teams, otherChildren);
         return new AssignmentRule(this.potentialMatches);
     }
-    
+
     abstract populateRule(child: Child, teams: Team[], otherChildren: Child[]);
+}
+
+abstract class AtomicRuleBuilder extends RuleBuilder {
+    private readonly isAtomic = 1;
 }
 
 export class AssignmentRule {
@@ -44,7 +49,7 @@ export class PotentialRuleMatch {
 }
 
 export function taughtBy(firstName, lastName) {
-    return new class extends RuleBuilder {
+    return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             const matchingTeams = teams.filter(team => team.teachers.some(t => t.firstName === firstName && t.lastName === lastName));
             if (matchingTeams.length !== 1) {
@@ -56,7 +61,7 @@ export function taughtBy(firstName, lastName) {
 }
 
 export function withChild(firstName, lastName) {
-    return new class extends RuleBuilder {
+    return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             const matchingChildren = otherChildren.filter(other => other.firstName === firstName && other.lastName === lastName);
             if (matchingChildren.length !== 1) {
@@ -68,22 +73,26 @@ export function withChild(firstName, lastName) {
 }
 
 export function withChildrenOf(firstName, lastName) {
-    return new class extends RuleBuilder {
+    return new class extends AtomicRuleBuilder {
+        populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
+            const matchingChildren = otherChildren.filter(other => other.parents.names.some(parent => parent.firstName === firstName && parent.lastName === lastName));
+            if (matchingChildren.length < 1) {
+                throw new Error(`Found no parents with ${firstName} ${lastName} requested by child`);
+            }
+            this.potentialMatches.push({teammates: matchingChildren});
+        }
+    }();
+}
+
+export function withFamily_NotImplemented(lastName) {
+    return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             throw new Error('Not implemented');
         }
     }();
 }
 
-export function withFamily(lastName) {
-    return new class extends RuleBuilder {
-        populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
-            throw new Error('Not implemented');
-        }
-    }();
-}
-
-export function not(rule: RuleBuilder) {
+export function not(rule: AtomicRuleBuilder) {
     return new class extends RuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             rule.populateRule(child, teams, otherChildren);
@@ -95,8 +104,6 @@ export function not(rule: RuleBuilder) {
                     this.potentialMatches.push({notTeammates: m.teammates});
                 }
             });
-            // this.mismatches = rule.potentialMatches;
-            // this.potentialMatches = rule.mismatches;
         }
     }();
 }
@@ -121,14 +128,42 @@ export function all(...rules: RuleBuilder[]) {
             });
 
             this.recursePermutations(rulePotentialMatches, permutation => {
-                const teammates : Child[] = [];
+                const teammates: Child[] = [];
+                const notTeammates: Child[] = [];
+                const notTeams: Team[] = [];
+                let team: Team;
                 for (const ruleMatch of permutation) {
                     if (ruleMatch.teammates) {
                         ruleMatch.teammates.filter(teammate => ! teammates.includes(teammate)).forEach(teammate => teammates.push(teammate));
                     }
+                    if (ruleMatch.team) {
+                        if (team && team !== ruleMatch.team) {
+                            throw new Error(`Child ${child.firstName} ${child.lastName} requested to be taught my multiple teachers on different teams`);
+                        }
+                        team = ruleMatch.team;
+                    }
+                    if (ruleMatch.notTeammates) {
+                        ruleMatch.notTeammates.forEach(notTeammate => notTeammates.push(notTeammate));
+                    }
+                    if (ruleMatch.notTeams) {
+                        ruleMatch.notTeams.forEach(notTeam => notTeams.push(notTeam));
+                    }
                 }
-                if (teammates.length > 0) {
-                    this.potentialMatches.push({teammates: teammates});
+                if (teammates.length > 0 || team || notTeammates.length > 0 || notTeams.length > 0) {
+                    const potentialMatch: PotentialRuleMatch = {};
+                    if (teammates.length > 0) {
+                        potentialMatch.teammates = teammates;
+                    }
+                    if (team) {
+                        potentialMatch.team = team;
+                    }
+                    if (notTeammates.length > 0) {
+                        potentialMatch.notTeammates = notTeammates;
+                    }
+                    if (notTeams.length > 0) {
+                        potentialMatch.notTeams = notTeams;
+                    }
+                    this.potentialMatches.push(potentialMatch);
                 }
             });
         }
