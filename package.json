@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "pretest": "tsc --noEmit",
     "test": "mocha --require ts-node/register test/**/*.ts"
   },
   "repository": {

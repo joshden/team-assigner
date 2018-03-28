@@ -3,7 +3,7 @@ import Teacher from "./Teacher";
 
 export class Team {
     constructor(
-        readonly teamNumber: number, 
+        readonly teamNumber: string, 
         readonly teachers: Teacher[]
     ) { }
 }

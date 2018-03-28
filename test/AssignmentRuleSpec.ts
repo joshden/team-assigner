@@ -20,9 +20,9 @@ describe('RuleBuilder', () => {
     const allChildren = [childA1, childA2, childB1, childC1, childC2, childC3];
 
     const teams = [
-        new Team(1, [new Teacher('TF1A', 'TL1A'), new Teacher('TF1B', 'TL1B')]),
-        new Team(2, [new Teacher('TF2A', 'TL2A'), new Teacher('TF2B', 'TL2B')]),
-        new Team(3, [new Teacher('TF3A', 'TL3A'), new Teacher('TF3B', 'TL3B')]),
+        new Team('1', [new Teacher('TF1A', 'TL1A'), new Teacher('TF1B', 'TL1B')]),
+        new Team('2', [new Teacher('TF2A', 'TL2A'), new Teacher('TF2B', 'TL2B')]),
+        new Team('3', [new Teacher('TF3A', 'TL3A'), new Teacher('TF3B', 'TL3B')]),
     ];
     const [team1, team2, team3] = teams;
 

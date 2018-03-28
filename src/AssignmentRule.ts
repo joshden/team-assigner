@@ -10,7 +10,7 @@ export abstract class RuleBuilder {
         return new AssignmentRule(this.potentialMatches);
     }
 
-    abstract populateRule(child: Child, teams: Team[], otherChildren: Child[]);
+    abstract populateRule(child: Child, teams: Team[], otherChildren: Child[]): void;
 }
 
 abstract class AtomicRuleBuilder extends RuleBuilder {
@@ -25,7 +25,8 @@ export class AssignmentRule {
             if (potentialMatch.team && potentialMatch.notTeams && potentialMatch.notTeams.includes(potentialMatch.team)) {
                 throw new Error(`Team ${potentialMatch.team.teamNumber} was defined as both required and not allowed`);
             }
-            if (potentialMatch.teammates && potentialMatch.notTeammates && potentialMatch.notTeammates.some(notTeammate => potentialMatch.teammates.includes(notTeammate))) {
+            const teammates = potentialMatch.teammates;
+            if (teammates !== undefined && potentialMatch.notTeammates && potentialMatch.notTeammates.some(notTeammate => teammates.includes(notTeammate))) {
                 throw new Error(`1 or more child was defined as both required and not allowed`);
             }
         }
@@ -48,7 +49,7 @@ export class PotentialRuleMatch {
     notTeammates?: Child[];
 }
 
-export function taughtBy(firstName, lastName) {
+export function taughtBy(firstName: string, lastName: string) {
     return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             const matchingTeams = teams.filter(team => team.teachers.some(t => t.firstName === firstName && t.lastName === lastName));
@@ -60,7 +61,7 @@ export function taughtBy(firstName, lastName) {
     }();
 }
 
-export function withChild(firstName, lastName) {
+export function withChild(firstName: string, lastName: string) {
     return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             const matchingChildren = otherChildren.filter(other => other.firstName === firstName && other.lastName === lastName);
@@ -72,7 +73,7 @@ export function withChild(firstName, lastName) {
     }();
 }
 
-export function withChildrenOf(firstName, lastName) {
+export function withChildrenOf(firstName: string, lastName: string) {
     return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             const matchingChildren = otherChildren.filter(other => other.parents.names.some(parent => parent.firstName === firstName && parent.lastName === lastName));
@@ -84,7 +85,7 @@ export function withChildrenOf(firstName, lastName) {
     }();
 }
 
-export function withFamily_NotImplemented(lastName) {
+export function withFamily_NotImplemented(lastName: string) {
     return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             throw new Error('Not implemented');
@@ -131,13 +132,13 @@ export function all(...rules: RuleBuilder[]) {
                 const teammates: Child[] = [];
                 const notTeammates: Child[] = [];
                 const notTeams: Team[] = [];
-                let team: Team;
+                let team: Team | undefined;
                 for (const ruleMatch of permutation) {
                     if (ruleMatch.teammates) {
                         ruleMatch.teammates.filter(teammate => ! teammates.includes(teammate)).forEach(teammate => teammates.push(teammate));
                     }
                     if (ruleMatch.team) {
-                        if (team && team !== ruleMatch.team) {
+                        if (team !== undefined && team !== ruleMatch.team) {
                             throw new Error(`Child ${child.firstName} ${child.lastName} requested to be taught my multiple teachers on different teams`);
                         }
                         team = ruleMatch.team;

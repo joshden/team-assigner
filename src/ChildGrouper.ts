@@ -4,7 +4,7 @@ import AssignmentGroup from "./AssignmentGroup";
 export default function createAssignmentGroups(children: ChildWithRules[]) {
     const groups : AssignmentGroup[] = [];
     for (const child of children) {
-        let group = groups.find(group => group.hasChild(child));
+        let [group] = groups.filter(group => group.hasChild(child));
         if (! group) {
             group = new AssignmentGroup().addChild(child);
             groups.push(group);

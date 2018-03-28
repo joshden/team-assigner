@@ -16,7 +16,7 @@ const children: Child[] = [
 ];
 
 const teams: Team[] = [
-    new Team(1, [new Teacher("TeacherFname1", "TeacherLname1"), new Teacher("TeachFname2", "TeacherLname2")])
+    new Team('1', [new Teacher("TeacherFname1", "TeacherLname1"), new Teacher("TeachFname2", "TeacherLname2")])
 ];
 
 const assignmentRuleMappings: AssignmentRuleMapping[] = [

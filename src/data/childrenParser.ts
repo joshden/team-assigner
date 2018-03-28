@@ -2,6 +2,8 @@ import * as path from 'path';
 import parseSheet from './ExcelSheetObjectArrayParser';
 import * as _ from 'lodash';
 
+type StringKeyValue = {[key: string]: string};
+
 const rows = parseSheet(__dirname + '/../conv reg 2017.xls', 'Sheet1');
 
 const nameRegex = /^([a-z]+?[-a-z ]*[a-z]+)|[a-z]$/i;
@@ -20,14 +22,14 @@ const childFields = {
     'ChildShirtSize': /^ys|ym|yl|as|am|al|xl|adult large$/i,
 };
 
-const parentsList = [];
-const children = [];
+const parentsList: StringKeyValue[] = [];
+const children: StringKeyValue[] = [];
 
 rows.forEach((row, index) => {
     row.ChildBirthday2 = row.ChildBirdthday2;
     delete row.ChildBirdthday2; 
 
-    const parents = { $rowNum: row.$rowNum };
+    const parents: StringKeyValue = { $rowNum: row.$rowNum };
     Object.keys(parentsFields).forEach(field => parents[field] = row[field]);
 
     let anyChildren = false;
@@ -56,7 +58,7 @@ rows.forEach((row, index) => {
     }
 });
 
-function findMismatchedRecords(records, fields) {
+function findMismatchedRecords(records: StringKeyValue[], fields: {[key: string]: RegExp}) {
     return records
         .filter(_.negate(record => Object.keys(fields).reduce((accum, fieldName) => {
             const pattern = fields[fieldName];
