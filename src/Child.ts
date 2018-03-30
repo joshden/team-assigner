@@ -8,7 +8,7 @@ export interface Child {
     readonly notes: string;
     readonly firstName: string;
     readonly lastName: string;
-    readonly dateOfBirth: Date;
+    readonly dateOfBirth: Date | null;
     findSiblings(children: Child[]): Child[];
 }
 
@@ -46,7 +46,7 @@ export class BaseChild implements Child {
         readonly notes: string,
         readonly firstName: string = '',
         readonly lastName: string = '',
-        readonly dateOfBirth: Date
+        readonly dateOfBirth: Date | null
     ) {}
 
     findSiblings(children: Child[]) {
