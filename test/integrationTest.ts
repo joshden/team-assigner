@@ -1,8 +1,8 @@
 import TeamAssigner from "../src/TeamAssigner";
 import { Team } from "../src/Team";
 import { BaseChild, Child } from "../src/Child";
-import { AssignmentRuleMapping, mapping, matchAll, matchAny, notMatch, child, parent, notes } from "../src/AssignmentRuleMapping";
-import { taughtBy, withChild, withChildrenOf, not, any, all, withFamily_NotImplemented } from '../src/AssignmentRule';
+import { AssignmentRuleMapping, mapping, matchAll, matchAny, notMatch, child, parent, notes, ageLessThan, ageAtLeast } from "../src/AssignmentRuleMapping";
+import { taughtBy, withChild, withChildrenOf, not, any, all, withFamily_NotImplemented, team } from '../src/AssignmentRule';
 import Parents from "../src/Parents";
 import Teacher from "../src/Teacher";
 
@@ -12,11 +12,12 @@ const children: Child[] = [
     new BaseChild(parents1, "Note message. Put with best teacher. Something else", "Jacob", "Lname", new Date()),
     new BaseChild(parents1, "Note message. Put with best teacher. Something else", "Andrew", "Lname", new Date()),
     new BaseChild(new Parents(), "", "Some", "Loner", new Date()),
-    new BaseChild(parents1, "Notes", "FName", "Lname", new Date()),
+    new BaseChild(parents1, "Notes", "FName", "Lname", new Date(2010, 3-1, 23)),
 ];
 
 const teams: Team[] = [
-    new Team('1', [new Teacher("TeacherFname1", "TeacherLname1"), new Teacher("TeachFname2", "TeacherLname2")])
+    new Team('1', [new Teacher("TeacherFname1", "TeacherLname1"), new Teacher("TeachFname2", "TeacherLname2")]),
+    new Team('A', [new Teacher("A-T-F1", "A-T-L1"), new Teacher("A-T-F2", "A-T-L2")])
 ];
 
 const assignmentRuleMappings: AssignmentRuleMapping[] = [
@@ -36,6 +37,10 @@ const assignmentRuleMappings: AssignmentRuleMapping[] = [
         any(taughtBy("TeachF", "TeachL"), withChild("Someone", "Chiles"))),
     mapping(notes("On specific team with other student"),
         all(taughtBy("TeachF", "TeachL"), withChild("Someone", "Chiles"))),
+    mapping(ageLessThan(6),
+        team("A")),
+    mapping(ageAtLeast(6),
+        not(team("A"))),
     // groupWithSiblingsNotAlreadyInRules
 ];
 
@@ -92,6 +97,6 @@ child2, child4, child6
 
 describe('TeamAssigner', () => {
     it("doesn't fail", () => {
-        const assignedTeams = new TeamAssigner().assignTeams(children, teams, assignmentRuleMappings)
+        const assignedTeams = new TeamAssigner().assignTeams(children, teams, assignmentRuleMappings, new Date(2018, 4-1, 13));
     });
 });

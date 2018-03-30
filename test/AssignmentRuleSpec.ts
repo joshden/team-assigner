@@ -1,5 +1,5 @@
 import * as m from "../src/AssignmentRuleMapping";
-import { RuleBuilder, all, withChild, any, AssignmentRule, taughtBy, not, PotentialRuleMatch, withChildrenOf } from "../src/AssignmentRule";
+import { RuleBuilder, all, withChild, any, AssignmentRule, taughtBy, not, PotentialRuleMatch, withChildrenOf, team } from "../src/AssignmentRule";
 import { BaseChild, Child } from "../src/Child";
 import Parents from "../src/Parents";
 import { Team } from "../src/Team";
@@ -103,6 +103,17 @@ describe('RuleBuilder', () => {
 
         expectPotentialMatches(rule, [
             {
+                team: team2
+            }
+        ]);
+    });
+
+    it('taughtBy and not team', () => {
+        rule = getRule(childA1, all(taughtBy('TF2A', 'TL2A'), not(team('1'))));
+
+        expectPotentialMatches(rule, [
+            {
+                notTeams: [team1],
                 team: team2
             }
         ]);

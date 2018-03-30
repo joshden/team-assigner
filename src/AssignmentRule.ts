@@ -49,6 +49,18 @@ export class PotentialRuleMatch {
     notTeammates?: Child[];
 }
 
+export function team(teamName: string) {
+    return new class extends AtomicRuleBuilder {
+        populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
+            const matchingTeams = teams.filter(team => team.teamNumber === teamName);
+            if (matchingTeams.length !== 1) {
+                throw new Error(`Looking for 1 team named ${teamName}, but found ${matchingTeams.length}`);
+            }
+            this.potentialMatches.push({team: matchingTeams[0]});
+        }
+    }();
+}
+
 export function taughtBy(firstName: string, lastName: string) {
     return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {

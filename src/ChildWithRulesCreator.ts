@@ -3,7 +3,7 @@ import { AssignmentRuleMapping } from "./AssignmentRuleMapping";
 import { Team } from "./Team";
 import { AssignmentRule, RuleBuilder, all } from "./AssignmentRule";
 
-export default function getChildWithRules(child: Child, assignmentRuleMappings: AssignmentRuleMapping[], otherChildren: Child[], assignableTeams: Team[]) {
+export default function getChildWithRules(child: Child, assignmentRuleMappings: AssignmentRuleMapping[], otherChildren: Child[], assignableTeams: Team[], eventDate: Date) {
     // const assignmentRules: AssignmentRule[] = [];
     // const childrenInvolvedInRules: Child[] = [];
 
@@ -29,7 +29,7 @@ export default function getChildWithRules(child: Child, assignmentRuleMappings: 
 
     const rules: RuleBuilder[] = [];
     for (const mapping of assignmentRuleMappings) {
-        if (mapping.findCriteria.isApplicable(child)) {
+        if (mapping.findCriteria.isApplicable(child, eventDate)) {
             rules.push(mapping.rule);
         }
     }

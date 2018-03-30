@@ -1,6 +1,7 @@
 import { Child } from "./Child";
 import { Team } from "./Team";
 import { RuleBuilder } from "./AssignmentRule";
+import moment from 'moment';
 
 export class AssignmentRuleMapping {
     constructor(
@@ -14,11 +15,11 @@ export function mapping(findCriteria: FindCriteria, rule: RuleBuilder) {
 }
 
 class FindCriteria {
-    constructor(private readonly check: (child: Child) => boolean) {
+    constructor(private readonly check: (child: Child, eventDate: Date) => boolean) {
     }
 
-    isApplicable(child: Child) {
-        return this.check(child);
+    isApplicable(child: Child, eventDate: Date) {
+        return this.check(child, eventDate);
     }
 }
 
@@ -30,20 +31,28 @@ export function child(firstName: string, lastName: string) {
     return new FindCriteria(child => child.firstName === firstName && child.lastName === lastName);
 }
 
+export function ageAtLeast(age: number) {
+    return new FindCriteria((child, eventDate) => moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) >= age);
+}
+
+export function ageLessThan(age: number) {
+    return new FindCriteria((child, eventDate) => moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) < age);
+}
+
 export function parent(firstName: string, lastName: string) {
     return new FindCriteria(child => child.parents.names.some(name => name.firstName === firstName && name.lastName === lastName));
 }
 
 export function matchAll(...criteria: FindCriteria[]) {
-    return new FindCriteria(child => criteria.every(criteria => criteria.isApplicable(child)));
+    return new FindCriteria((child, eventDate) => criteria.every(criteria => criteria.isApplicable(child, eventDate)));
 }
 
 export function matchAny(...criteria: FindCriteria[]) {
-    return new FindCriteria(child => criteria.some(criteria => criteria.isApplicable(child)));
+    return new FindCriteria((child, eventDate) => criteria.some(criteria => criteria.isApplicable(child, eventDate)));
 }
 
 export function notMatch(criterion: FindCriteria) {
-    return new FindCriteria(child => ! criterion.isApplicable(child));
+    return new FindCriteria((child, eventDate) => ! criterion.isApplicable(child, eventDate));
 }
 
 
