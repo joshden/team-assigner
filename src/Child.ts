@@ -9,6 +9,8 @@ export interface Child {
     readonly firstName: string;
     readonly lastName: string;
     readonly dateOfBirth: Date | null;
+    readonly gender: Gender | null;
+    readonly shirtSize: ShirtSize | null;
     findSiblings(children: Child[]): Child[];
 }
 
@@ -34,6 +36,14 @@ abstract class ChildDecorator implements Child {
     get dateOfBirth() {
         return this.child.dateOfBirth;
     }
+
+    get gender() {
+        return this.child.gender;
+    }
+
+    get shirtSize() {
+        return this.child.shirtSize;
+    }
     
     findSiblings(children: Child[]) {
         return this.child.findSiblings(children);
@@ -46,7 +56,9 @@ export class BaseChild implements Child {
         readonly notes: string,
         readonly firstName: string = '',
         readonly lastName: string = '',
-        readonly dateOfBirth: Date | null
+        readonly dateOfBirth: Date | null = null,
+        readonly gender: Gender | null = null,
+        readonly shirtSize: ShirtSize | null = null
     ) {}
 
     findSiblings(children: Child[]) {
@@ -71,4 +83,19 @@ export class ChildOnTeam extends ChildDecorator {
     ) {
         super(child);
     }
+}
+
+export enum Gender {
+    Male,
+    Female
+}
+
+export enum ShirtSize {
+    YS,
+    YM,
+    YL,
+    AS,
+    AM,
+    AL,
+    XL
 }

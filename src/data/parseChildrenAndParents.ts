@@ -1,85 +1,169 @@
 import * as path from 'path';
 import parseSheet from './ExcelSheetObjectArrayParser';
 import * as _ from 'lodash';
+import Logger from '../Logger';
+import Parents from '../Parents';
+import { Child, BaseChild, Gender, ShirtSize } from '../Child';
 
 type StringKeyValue = {[key: string]: string};
 
-const rows = parseSheet(__dirname + '/../../../conv reg 2017.xls', 'Sheet1');
-
 const nameRegex = /^([a-z]+?[-a-z ]*[a-z]+)|[a-z]$/i;
+const dateRegex = /^(\d{1,2}\/\d{1,2}\/(\d{2}){1,2})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)$/;
 
-const parentsFields = {
-    'LastName': nameRegex,
-    'FirstName': nameRegex,
-    'SpouseLastName': nameRegex,
-    'SpouseFirstName': nameRegex
+const genderMapping: {[key: string]: Gender} = {
+    m: Gender.Male,
+    male: Gender.Male,
+    boy: Gender.Male,
+    f: Gender.Female,
+    female: Gender.Female,
+    femail: Gender.Female,
+    girl: Gender.Female
 };
 
-const childFields = {
-    'ChildName': nameRegex,
-    'ChildGender': /^m|f|male|female|femail|boy|girl$/i,
-    'ChildBirthday': /^(\d{1,2}\/\d{1,2}\/(\d{2}){1,2})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)$/,
-    'ChildShirtSize': /^ys|ym|yl|as|am|al|xl|adult large$/i,
-};
+const shirtSizeMapping: {[key: string]: ShirtSize} = {
+    ys: ShirtSize.YS,
+    ym: ShirtSize.YM,
+    yl: ShirtSize.YL,
+    as: ShirtSize.AS,
+    am: ShirtSize.AM,
+    'adult large': ShirtSize.AL,
+    al: ShirtSize.AL,
+    xl: ShirtSize.XL
+}
 
-const parentsList: StringKeyValue[] = [];
-const children: StringKeyValue[] = [];
+const parentsFields = [
+    'LastName',
+    'FirstName',
+    'SpouseLastName',
+    'SpouseFirstName'
+];
 
-rows.forEach((row, index) => {
-    row.ChildBirthday2 = row.ChildBirdthday2;
-    delete row.ChildBirdthday2; 
+const childFields = [
+    'ChildName',
+    'ChildGender',
+    'ChildBirthday',
+    'ChildShirtSize',
+];
 
-    const parents: StringKeyValue = { $rowNum: row.$rowNum };
-    Object.keys(parentsFields).forEach(field => parents[field] = row[field]);
+export default function parseChildrenAndParents(filePath: string, logger: Logger) {
+    const rows = parseSheet(filePath, 'Sheet1');
 
-    let anyChildren = false;
-    _.range(1, 6).forEach(childNum => {
-        const child: {[field: string]: any} = {};
-        let isChild = false;
-        Object.keys(childFields).forEach(field => {
-            const fieldName = field + childNum.toString();
-            // console.log(fieldName);
-            if (row[fieldName].length > 0) {
-                isChild = true;
-                child[field] = row[fieldName];
+    const parentsList: StringKeyValue[] = [];
+    const children: Child[] = [];
+    
+    rows.forEach((row, index) => {
+        row.ChildBirthday2 = row.ChildBirdthday2;
+        delete row.ChildBirdthday2; 
+    
+        const parents: StringKeyValue = { $rowNum: row.$rowNum };
+        parentsFields.forEach(field => parents[field] = row[field]);
+    
+        let parentsObj: Parents;
+        _.range(1, 6).forEach(childNum => {
+            const child: {[field: string]: any} = {};
+            let isChild = false;
+            childFields.forEach(field => {
+                const fieldName = field + childNum.toString();
+                if (row[fieldName].length > 0) {
+                    isChild = true;
+                    child[field] = row[fieldName];
+                }
+            });
+            if (isChild) {
+                if (! parentsObj) {
+                    parentsObj = createParents(parents, logger);
+                }
+                child.$childNum = childNum;
+                child.$parents = parents;
+                child.Notes = row.Notes;
+                children.push(createChild(parentsObj, child, logger));
             }
         });
-        if (isChild) {
-            anyChildren = true;
-            child.$childNum = childNum;
-            child.Notes = row.Notes;
-            child.parents = parents;
-            children.push(child);
+    });
+
+    return children;
+}
+
+function createParents(parents: StringKeyValue, logger: Logger) {
+    const names: {firstName: string, lastName: string}[] = [];
+
+    [['FirstName', 'LastName'], ['SpouseFirstName', 'SpouseLastName']].forEach(fields => {
+        const [fField, lField] = fields;
+        if (parents[fField] !== '' || parents[lField] !== '') {
+            if (! nameRegex.test(parents[fField])) {
+                logger.warning('Unexpected FirstName value', parents);
+            }
+            if (! nameRegex.test(parents[lField])) {
+                logger.warning('Unexpected LastName value', parents);
+            }
+            names.push({firstName: parents[fField], lastName: parents[lField]});
         }
     });
 
-    if (anyChildren) {
-        parentsList.push(parents);
+    if (names.length < 1) {
+        logger.warning('No parent names were found', parents);
     }
-});
 
-function findMismatchedRecords(records: StringKeyValue[], fields: {[key: string]: RegExp}) {
-    return records
-        .filter(_.negate(record => Object.keys(fields).reduce((accum, fieldName) => {
-            const pattern = fields[fieldName];
-            const value = record[fieldName];
-            if (! pattern.test(value)) {
-                console.log(fieldName, value);
-            }
-            return accum && pattern.test(value);
-        }, true)));
+    return new Parents(...names);
 }
 
+function createChild(parents: Parents, child: {[field: string]: any}, logger: Logger) {
+    const [firstName, lastName] = getChildFirstAndLastName(child, parents, logger);
+    const dob = dateRegex.test(child.ChildBirthday) ? new Date(child.ChildBirthday) : null;
+    const gender = child.hasOwnProperty('ChildGender') && genderMapping.hasOwnProperty(child.ChildGender.toLowerCase()) ? genderMapping[child.ChildGender.toLowerCase()] : null;
+    const shirtSize = child.hasOwnProperty('ShirtSize') && shirtSizeMapping.hasOwnProperty(child.ShirtSize.toLowerCase()) ? shirtSizeMapping[child.ShirtSize.toLowerCase()] : null;
 
-console.log(
-    findMismatchedRecords(parentsList, parentsFields)
-        .filter(parents => !(
-            (parents.LastName === '' && parents.FirstName === '' && parents.SpouseLastName.length > 0 && parents.SpouseFirstName.length > 0)
-            ||
-            (parents.SpouseLastName === '' && parents.SpouseFirstName === '' && parents.LastName.length > 0 && parents.FirstName.length > 0)
-        ))
-);
+    if (dob === null) {
+        logger.warning(`Unexpected DOB ${child.ChildBirthday}`, child);
+    }
 
-console.log(
-    findMismatchedRecords(children, childFields)
-);
+    if (gender === null) {
+        logger.warning(`Unknown gender ${child.ChildGender}`, child);
+    }
+
+    if (shirtSize === null) {
+        logger.warning(`Unknown shirt size ${child.ShirtSize}`, child);
+    }
+
+    return new BaseChild(parents, child.Notes, firstName, lastName, dob, gender, shirtSize);
+}
+
+function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parents, logger: Logger): [string, string] {
+    let name = child.ChildName as string;
+    if (! nameRegex.test(name)) {
+        logger.warning(`Unexpected child name ${name}`, child);
+    }
+    if (typeof name !== 'string') {
+        name = '';
+    }
+    const namePieces = name.split(/ +/);
+    const parentLastNames = parents.names.map(name => name.lastName);
+
+    if (namePieces.length > 1) {
+        if (parentLastNames.length > 1) {
+            for (const parentLastName of parentLastNames) {
+                if (name.toLowerCase().endsWith(parentLastName.toLowerCase())) {
+                    const firstName = name.substring(0, name.length - parentLastName.length).trim();
+                    const lastName = parentLastName;
+                    return [firstName, lastName];
+                }
+            }
+
+            logger.warning(`Assuming child name ${name} includes a middle name and not a different last name from parents`, child);
+            return [name, parentLastNames[0]];
+        }
+        else {
+            logger.warning(`Assuming child name ${name} is first and last name because no parent last names were found`, child);
+            return name.split(/ +/, 2) as [string, string];
+        }
+    }
+
+    else if (parentLastNames.length > 0) {
+        return [name, parentLastNames[0]];
+    }
+
+    else {
+        logger.warning('No last name found for child or parents', child);
+        return [name, ''];
+    }
+}
