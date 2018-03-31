@@ -32,14 +32,14 @@ export function child(firstName: string, lastName: string) {
 }
 
 export function ageAtLeast(age: number) {
-    return new FindCriteria((child, eventDate) => child.dateOfBirth ? moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) >= age: false);
+    return new FindCriteria((child, eventDate) => !!child.dateOfBirth && moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) >= age);
 }
 
 export function ageLessThan(age: number) {
-    return new FindCriteria((child, eventDate) => child.dateOfBirth ? moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) < age: false);
+    return new FindCriteria((child, eventDate) => !!child.dateOfBirth && moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) < age);
 }
 
-export const unknownAge = new FindCriteria((child, eventDate) => !child.dateOfBirth);
+export const unknownAge = new FindCriteria(child => !child.dateOfBirth);
 
 export function parent(firstName: string, lastName: string) {
     return new FindCriteria(child => child.parents.names.some(name => name.firstName === firstName && name.lastName === lastName));
