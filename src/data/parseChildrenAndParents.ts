@@ -111,7 +111,7 @@ function createChild(parents: Parents, child: {[field: string]: any}, logger: Lo
     const [firstName, lastName] = getChildFirstAndLastName(child, parents, logger);
     const dob = dateRegex.test(child.ChildBirthday) ? new Date(child.ChildBirthday) : null;
     const gender = child.hasOwnProperty('ChildGender') && genderMapping.hasOwnProperty(child.ChildGender.toLowerCase()) ? genderMapping[child.ChildGender.toLowerCase()] : null;
-    const shirtSize = child.hasOwnProperty('ShirtSize') && shirtSizeMapping.hasOwnProperty(child.ShirtSize.toLowerCase()) ? shirtSizeMapping[child.ShirtSize.toLowerCase()] : null;
+    const shirtSize = child.hasOwnProperty('ChildShirtSize') && shirtSizeMapping.hasOwnProperty(child.ChildShirtSize.toLowerCase()) ? shirtSizeMapping[child.ChildShirtSize.toLowerCase()] : null;
 
     if (dob === null) {
         logger.warning(`Unexpected DOB ${child.ChildBirthday}`, child);
@@ -149,12 +149,14 @@ function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parent
                 }
             }
 
-            logger.warning(`Assuming child name ${name} includes a middle name and not a different last name from parents`, child);
+            logger.warning(`Assuming child name first/middle=${name} and last=${parentLastNames[0]} and not a different last name from parents`, child);
             return [name, parentLastNames[0]];
         }
         else {
-            logger.warning(`Assuming child name ${name} is first and last name because no parent last names were found`, child);
-            return name.split(/ +/, 2) as [string, string];
+            const last = namePieces.pop() as string;
+            const first = namePieces.join(' ');
+            logger.warning(`Assuming child name is first=${first} last=${last} because no parent last names were found`, child);
+            return [first, last];
         }
     }
 

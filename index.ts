@@ -14,4 +14,5 @@ const teams = parseTeamsAndTeachers(path.resolve(__dirname, '..', 'FBA Team Assi
 const teamAssigner = new TeamAssigner;
 const assignedTeams = teamAssigner.assignTeams(children, teams, assignmentRuleMappings, new Date('2018-04-13'));
 
-// console.log(logger.entries);
+// console.log(JSON.stringify(logger.entries, null, 2));
+console.log(JSON.stringify(children, null, 2));
