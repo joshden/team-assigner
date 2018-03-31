@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 type StringKeyValue = {[key: string]: string};
 
-const rows = parseSheet(__dirname + '/../conv reg 2017.xls', 'Sheet1');
+const rows = parseSheet(__dirname + '/../../../conv reg 2017.xls', 'Sheet1');
 
 const nameRegex = /^([a-z]+?[-a-z ]*[a-z]+)|[a-z]$/i;
 

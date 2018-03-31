@@ -3,16 +3,19 @@ import parseSheet from './ExcelSheetObjectArrayParser';
 import { Team } from '../Team';
 import Teacher from '../Teacher';
 
-const rows = parseSheet(__dirname + '/../FBA Team Assignments 2018.xlsx', 'Sheet1', 3);
 
-export const teams =
-    rows.map(row =>
-        new Team(
-            row['Team #'],
-            createTeachers(
-                row.Teacher,
-                row.Assistants,
-                row.Assistants$1)));
+export default function parseTeamsAndTeachers(filePath: string) {
+    const rows = parseSheet(filePath, 'Sheet1', 3);
+    const teams =
+        rows.map(row =>
+            new Team(
+                row['Team #'],
+                createTeachers(
+                    row.Teacher,
+                    row.Assistants,
+                    row.Assistants$1)));
+    return teams;
+};
 
 function createTeachers(...names: string[]) {
     return names
