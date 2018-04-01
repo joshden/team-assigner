@@ -71,7 +71,7 @@ export function matchAny(...criteria: FindCriteria[]) {
                 break;
             }
         }
-        return [isAnyApplicable, isAnyNotesMatch];
+        return [criteria.length < 1 || isAnyApplicable, isAnyNotesMatch];
     });
 }
 

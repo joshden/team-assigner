@@ -2,6 +2,8 @@ import { ageAtLeast, ageLessThan, unknownAge, notes, FindCriteria, child, matchA
 import { BaseChild, Child } from "../src/Child";
 import Parents from "../src/Parents";
 import { expect } from 'chai';
+import { createChild } from "./TestUtil";
+import { create } from "domain";
 
 describe('FindCriteria', () => {
     it('ageAtLeast', () => {
@@ -35,24 +37,12 @@ describe('FindCriteria', () => {
         expect(isApplicable(matchAll(notes('The Notes'), child('F', 'L')), childA)).to.deep.equal([true, true]);
         expect(isApplicable(matchAll(notes('The Notes'), child('F2', 'L2')), childA)).to.deep.equal([false, false]);
     });
+
+    it('blank empty and all', () => {
+        expectIsApplicableTrue(matchAny(), createChild());
+        expectIsApplicableTrue(matchAll(), createChild());
+    });
 });
-
-
-function createChild(params: {dob?: Date, notes?: string, firstName?: string, lastName?: string}) {
-    if (! params.dob) {
-        params.dob = new Date();
-    }
-    if (! params.notes) {
-        params.notes = '';
-    }
-    if (! params.firstName) {
-        params.firstName = 'F';
-    }
-    if (! params.lastName) {
-        params.lastName = 'L';
-    }
-    return new BaseChild(new Parents(), params.notes, params.firstName, params.lastName, params.dob);
-}
 
 function isApplicable(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date(2018, 3-1, 3)) {
     return findCriteria.isApplicable(child, eventDate);
