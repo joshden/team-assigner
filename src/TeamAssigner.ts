@@ -6,6 +6,7 @@ import AssignmentGroup from "./AssignmentGroup";
 import getChildWithRules from './ChildWithRulesCreator';
 import IdealTeamStats from "./IdealTeamStats";
 import Logger from "./Logger";
+import createAssignmentGroups from "./ChildGrouper";
 
 export default class TeamAssigner {
     assignTeams(children: Child[], assignableTeams: Team[], assignmentRuleMappings: AssignmentRuleMapping[], eventDate: Date, logger: Logger) {
@@ -28,7 +29,7 @@ export default class TeamAssigner {
     }
 
     private assignChildrenToGroups(children: ChildWithRules[]) {
-        return [] as AssignmentGroup[];
+        return createAssignmentGroups(children);
     }
 
     private assignGroupsToTeams(assignmentGroups: AssignmentGroup[], assignableTeams: Team[], idealTeamStats: IdealTeamStats) {

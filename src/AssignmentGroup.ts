@@ -1,7 +1,7 @@
 import { Child } from "./Child";
 
 export default class AssignmentGroup {
-    private readonly children: Child[] = [];
+    readonly children: Child[] = [];
 
     addChild(child: Child) {
         this.children.push(child);

@@ -15,7 +15,7 @@ export interface Child {
 }
 
 abstract class ChildDecorator implements Child {
-    constructor(protected readonly child: Child) {}
+    constructor(readonly child: Child) {}
 
     get parents() {
         return this.child.parents;
