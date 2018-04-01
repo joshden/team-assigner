@@ -1,32 +1,67 @@
-import { ageAtLeast, ageLessThan, unknownAge } from "../src/AssignmentRuleMapping";
-import { BaseChild } from "../src/Child";
+import { ageAtLeast, ageLessThan, unknownAge, notes, FindCriteria, child, matchAny, matchAll } from "../src/AssignmentRuleMapping";
+import { BaseChild, Child } from "../src/Child";
 import Parents from "../src/Parents";
 import { expect } from 'chai';
 
-
-describe('AssignmentRuleMapping', () => {
+describe('FindCriteria', () => {
     it('ageAtLeast', () => {
-        expect(ageAtLeast(5).isApplicable(child({dob: new Date(2013, 3-1, 3)}), new Date(2018, 3-1, 3))).to.be.true;
-        expect(ageAtLeast(5).isApplicable(child({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3))).to.be.false;
-        expect(ageAtLeast(5).isApplicable(new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3))).to.be.false;
+        expectIsApplicableTrue(ageAtLeast(5), createChild({dob: new Date(2013, 3-1, 3)}), new Date(2018, 3-1, 3));
+        expectIsApplicableFalse(ageAtLeast(5), createChild({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3));
+        expectIsApplicableFalse(ageAtLeast(5), new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3));
     });
 
     it('ageLessThan', () => {
-        expect(ageLessThan(5).isApplicable(child({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3))).to.be.true;
-        expect(ageLessThan(5).isApplicable(child({dob: new Date(2013, 3-1, 3)}), new Date(2018, 3-1, 3))).to.be.false;
-        expect(ageLessThan(5).isApplicable(new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3))).to.be.false;
+        expectIsApplicableTrue(ageLessThan(5), createChild({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3));
+        expectIsApplicableFalse(ageLessThan(5), createChild({dob: new Date(2013, 3-1, 3)}), new Date(2018, 3-1, 3));
+        expectIsApplicableFalse(ageLessThan(5), new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3));
     });
 
     it('unknownAge', () => {
-        expect(unknownAge.isApplicable(new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3))).to.be.true;
-        expect(unknownAge.isApplicable(child({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3))).to.be.false;
+        expectIsApplicableTrue(unknownAge, new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3));
+        expectIsApplicableFalse(unknownAge, createChild({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3));
+    });
+
+    it('notes', () => {
+        const child = new BaseChild(new Parents(), 'Just a string with some, you know, notes', 'F', 'L', null);
+        expect(isApplicable(notes('Just a string with some, you know, notes'), child)).to.deep.equal([true, true]);
+        expect(isApplicable(notes('some'), child)).to.deep.equal([false, false]);
+    });
+
+    it('wereChildNotesMatched', () => {
+        const childA = createChild({notes: 'The Notes', firstName: 'F', lastName: 'L'});
+        expect(isApplicable(matchAny(notes('Some other notes'), child('F', 'L')), childA)).to.deep.equal([true, false]);
+        expect(isApplicable(matchAny(notes('The Notes'), child('F2', 'L2')), childA)).to.deep.equal([true, true]);
+        expect(isApplicable(matchAll(notes('Some other notes'), child('F', 'L')), childA)).to.deep.equal([false, false]);
+        expect(isApplicable(matchAll(notes('The Notes'), child('F', 'L')), childA)).to.deep.equal([true, true]);
+        expect(isApplicable(matchAll(notes('The Notes'), child('F2', 'L2')), childA)).to.deep.equal([false, false]);
     });
 });
 
 
-function child(params: {dob?: Date}) {
+function createChild(params: {dob?: Date, notes?: string, firstName?: string, lastName?: string}) {
     if (! params.dob) {
         params.dob = new Date();
     }
-    return new BaseChild(new Parents(), '', 'F', 'L', params.dob);
+    if (! params.notes) {
+        params.notes = '';
+    }
+    if (! params.firstName) {
+        params.firstName = 'F';
+    }
+    if (! params.lastName) {
+        params.lastName = 'L';
+    }
+    return new BaseChild(new Parents(), params.notes, params.firstName, params.lastName, params.dob);
+}
+
+function isApplicable(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date(2018, 3-1, 3)) {
+    return findCriteria.isApplicable(child, eventDate);
+}
+
+function expectIsApplicableTrue(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date(2018, 3-1, 3)) {
+    expect(isApplicable(findCriteria, child, eventDate)[0]).to.be.true;
+}
+
+function expectIsApplicableFalse(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date(2018, 3-1, 3)) {
+    expect(isApplicable(findCriteria, child, eventDate)[0]).to.be.false;
 }

@@ -5,6 +5,7 @@ import { AssignmentRuleMapping, mapping, matchAll, matchAny, notMatch, child, pa
 import { taughtBy, withChild, withChildrenOf, not, any, all, withFamily_NotImplemented, team } from '../src/AssignmentRule';
 import Parents from "../src/Parents";
 import Teacher from "../src/Teacher";
+import Logger from "../src/Logger";
 
 const parents1 = new Parents({firstName: "PFname", lastName: "PLname"});
 
@@ -97,6 +98,6 @@ child2, child4, child6
 
 describe('TeamAssigner', () => {
     it("doesn't fail", () => {
-        const assignedTeams = new TeamAssigner().assignTeams(children, teams, assignmentRuleMappings, new Date(2018, 4-1, 13));
+        const assignedTeams = new TeamAssigner().assignTeams(children, teams, assignmentRuleMappings, new Date(2018, 4-1, 13), new Logger);
     });
 });
