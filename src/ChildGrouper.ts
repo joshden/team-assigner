@@ -4,19 +4,25 @@ import AssignmentGroup from "./AssignmentGroup";
 export default function createAssignmentGroups(children: ChildWithRules[]) {
     const groups : AssignmentGroup[] = [];
     for (const child of children) {
+        const matchToUse = child.assignmentRule.potentialMatches[0];
         let [group] = groups.filter(group => group.hasChild(child));
         if (! group) {
-            group = new AssignmentGroup().addChild(child);
+            group = addChildToGroup(new AssignmentGroup(), child);
             groups.push(group);
         }
         children
             .filter(potentialGroupChild => ! group.hasChild(potentialGroupChild))
-            .filter(potentialGroupChild => child.assignmentRule.potentialMatches.some(potentialMatch => potentialMatch.teammates !== undefined && potentialMatch.teammates.includes(potentialGroupChild.child)))
-            .forEach(groupChild => group.addChild(groupChild));
+            .filter(potentialGroupChild => { 
+                return matchToUse && matchToUse.teammates !== undefined && matchToUse.teammates.includes(potentialGroupChild.child);
+            })
+            .forEach(groupChild => addChildToGroup(group, groupChild));
     }
 
     const mergedGroups = getMergedGroups(groups);
-    // find contradictions (children that ended up in the same group in spite of a child saying that another child shouldNotHaveInGroup)
+
+    for (const group of mergedGroups) {
+        group.verifyNoContradictions();
+    }
 
     // siblings:
     // otherChildren
@@ -38,7 +44,7 @@ function getMergedGroups(groups: AssignmentGroup[]) {
                     if (hasCommonChildren) {
                         group2.children
                             .filter(child => ! group1.hasChild(child))
-                            .forEach(child => group1.addChild(child));
+                            .forEach(child => addChildToGroup(group1, child));
                         groupToRemove = group2;
                         break loop1;
                     }
@@ -51,4 +57,8 @@ function getMergedGroups(groups: AssignmentGroup[]) {
     } while (groupToRemove);
 
     return groups;
+}
+
+function addChildToGroup(group: AssignmentGroup, child: ChildWithRules) {
+    return group.addChild(child, child.assignmentRule.potentialMatches[0]);
 }

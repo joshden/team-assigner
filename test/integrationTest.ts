@@ -2,7 +2,7 @@ import TeamAssigner from "../src/TeamAssigner";
 import { Team } from "../src/Team";
 import { BaseChild, Child } from "../src/Child";
 import { AssignmentRuleMapping, mapping, matchAll, matchAny, notMatch, child, parent, notes, ageLessThan, ageAtLeast, unknownAge } from "../src/AssignmentRuleMapping";
-import { taughtBy, withChild, withChildrenOf, not, any, all, withFamily_NotImplemented, team } from '../src/AssignmentRule';
+import { taughtBy, withChild, withChildrenOf, not, any, all, withFamily_NotImplemented, onTeam } from '../src/AssignmentRule';
 import Parents from "../src/Parents";
 import Teacher from "../src/Teacher";
 import Logger from "../src/Logger";
@@ -39,9 +39,9 @@ const assignmentRuleMappings: AssignmentRuleMapping[] = [
     mapping(notes("On specific team with other student"),
         all(taughtBy("TeachF", "TeachL"), withChild("Someone", "Chiles"))),
     mapping(ageLessThan(6),
-        team("A")),
+        onTeam("A")),
     mapping(matchAny(ageAtLeast(6), unknownAge),
-        not(team("A"))),
+        not(onTeam("A"))),
     // groupWithSiblingsNotAlreadyInRules
 ];
 

@@ -49,7 +49,7 @@ export class PotentialRuleMatch {
     notTeammates?: Child[];
 }
 
-export function team(teamName: string) {
+export function onTeam(teamName: string) {
     return new class extends AtomicRuleBuilder {
         populateRule(child: Child, teams: Team[], otherChildren: Child[]) {
             const matchingTeams = teams.filter(team => team.teamNumber === teamName);

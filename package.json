@@ -2,10 +2,11 @@
   "name": "team-assigner",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "pretest": "tsc --noEmit",
-    "test": "mocha --require ts-node/register test/**/*.ts"
+    "test": "mocha --require ts-node/register test/**/*.ts",
+    "start": "ts-node index.ts"
   },
   "repository": {
     "type": "git",

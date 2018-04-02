@@ -1,24 +1,26 @@
 import { expect } from 'chai';
 import Parents from '../src/Parents';
-import { createChild } from './TestUtil';
+import { createChild, childWithRules, withChildObj } from './TestUtil';
 import { ChildWithRules } from '../src/Child';
-import { withChild, all, RuleBuilder } from '../src/AssignmentRule';
+import { withChild, all, RuleBuilder, not, any } from '../src/AssignmentRule';
 import createAssignmentGroups from '../src/ChildGrouper';
+import { Team } from '../src/Team';
 
 describe('ChildGrouper', () => {
+    const childA = createChild();
+    const childB = createChild();
+    const childC = createChild();
+    const childD = createChild();
+    const childE = createChild();
 
     it('groups teammates who should be together', () => {
-        const childA = createChild();
-        const childB = createChild();
-        const childC = createChild();
-        const childD = createChild();
-        const childE = createChild();
+        const allChildren = [childA, childB, childC, childD, childE];
 
-        const ruleChildA = new ChildWithRules(childA, withChild(childB.firstName, childB.lastName).getRule(childA, [], [childB, childC, childD, childE]));
-        const ruleChildB = new ChildWithRules(childB, all().getRule(childB, [], []));
-        const ruleChildC = new ChildWithRules(childC, all().getRule(childC, [], []));
-        const ruleChildD = new ChildWithRules(childD, withChild(childC.firstName, childC.lastName).getRule(childD, [], [childA, childB, childC, childE]));
-        const ruleChildE = new ChildWithRules(childE, withChild(childD.firstName, childD.lastName).getRule(childE, [], [childA, childB, childC, childD]));
+        const ruleChildA = childWithRules(childA, withChildObj(childB), [], allChildren);
+        const ruleChildB = childWithRules(childB, all(), [], allChildren);
+        const ruleChildC = childWithRules(childC, all(), [], allChildren);
+        const ruleChildD = childWithRules(childD, withChildObj(childC), [], allChildren);
+        const ruleChildE = childWithRules(childE, withChildObj(childD), [], allChildren);
 
         const groups = createAssignmentGroups([ruleChildA, ruleChildB, ruleChildC, ruleChildD, ruleChildE]);
         expect(groups).to.have.lengthOf(2);
@@ -26,8 +28,31 @@ describe('ChildGrouper', () => {
         expect(groups[1].children).to.deep.equal([ruleChildC, ruleChildD, ruleChildE]);
     });
 
-    // TODO need to take into account any() and not to include teammates from all potential matches
+    it("uses each child's first potential match", () => { // though could be enhanced in the future to find most optimal as well as pick ones that would eliminate contradictions
+        const allChildren = [childA, childB, childC];
 
+        const ruleChildA = childWithRules(childA, 
+            any(
+                withChild(childB.firstName, childB.lastName), 
+                withChild(childC.firstName, childC.lastName)), [], allChildren);
+        const ruleChildB = childWithRules(childB, all(), [], allChildren);
+        const ruleChildC = childWithRules(childC, all(), [], allChildren);
+
+        const groups = createAssignmentGroups([ruleChildA, ruleChildB, ruleChildC]);
+        expect(groups).to.have.lengthOf(2);
+        expect(groups[0].children).to.deep.equal([ruleChildA, ruleChildB]);
+        expect(groups[0].rules).to.deep.equal([ruleChildA.assignmentRule.potentialMatches[0]]);
+        expect(groups[1].children).to.deep.equal([ruleChildC]);
+    });
+
+    it("checks for contradictions", () => {
+        const allChildren = [childA, childB];
+
+        const ruleChildA = childWithRules(childA, withChildObj(childB), [], allChildren);
+        const ruleChildB = childWithRules(childB, not(withChildObj(childA)), [], allChildren);
+
+        expect(() => createAssignmentGroups([ruleChildA, ruleChildB])).to.throw(Error);
+    });
     
     // describe('siblings', () => {
     //     it('places together if no conflicting rules', () => {

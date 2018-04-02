@@ -1,5 +1,7 @@
-import { BaseChild } from "../src/Child";
+import { BaseChild, Child, ChildWithRules } from "../src/Child";
 import Parents from "../src/Parents";
+import { withChild, AssignmentRule, RuleBuilder } from "../src/AssignmentRule";
+import { Team } from "../src/Team";
 
 let nameSequence = 0;
 
@@ -20,4 +22,12 @@ export function createChild(params: {parents?: Parents, dob?: Date, notes?: stri
         params.lastName = 'L' + (++nameSequence).toString();
     }
     return new BaseChild(params.parents, params.notes, params.firstName, params.lastName, params.dob);
+}
+
+export function withChildObj(child: Child) {
+    return withChild(child.firstName, child.lastName);
+}
+
+export function childWithRules(child: Child, rule: RuleBuilder, teams: Team[], allChildren: Child[]) {
+    return new ChildWithRules(child, rule.getRule(child, teams, allChildren.filter(c => c !== child)));
 }
