@@ -17,6 +17,7 @@ const genderMapping: {[key: string]: Gender} = {
     f: Gender.Female,
     female: Gender.Female,
     femail: Gender.Female,
+    femal: Gender.Female,
     girl: Gender.Female
 };
 
@@ -109,7 +110,14 @@ function createParents(parents: StringKeyValue, logger: Logger) {
 
 function createChild(parents: Parents, child: {[field: string]: any}, logger: Logger) {
     const [firstName, lastName] = getChildFirstAndLastName(child, parents, logger);
-    const dob = dateRegex.test(child.ChildBirthday) ? new Date(child.ChildBirthday) : null;
+    let dob: Date | null = null;
+    if (dateRegex.test(child.ChildBirthday)) {
+        dob = new Date(child.ChildBirthday);
+    }
+    else if (typeof child.ChildBirthday === 'string' && dateRegex.test(child.ChildBirthday.replace(/\-/g, '/'))) {
+        dob = new Date(child.ChildBirthday.replace(/\-/g, '/'));
+    }
+
     const gender = child.hasOwnProperty('ChildGender') && genderMapping.hasOwnProperty(child.ChildGender.toLowerCase()) ? genderMapping[child.ChildGender.toLowerCase()] : null;
     const shirtSize = child.hasOwnProperty('ChildShirtSize') && shirtSizeMapping.hasOwnProperty(child.ChildShirtSize.toLowerCase()) ? shirtSizeMapping[child.ChildShirtSize.toLowerCase()] : null;
 
@@ -140,7 +148,7 @@ function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parent
     const parentLastNames = parents.names.map(name => name.lastName);
 
     if (namePieces.length > 1) {
-        if (parentLastNames.length > 1) {
+        if (parentLastNames.length > 0) {
             for (const parentLastName of parentLastNames) {
                 if (name.toLowerCase().endsWith(parentLastName.toLowerCase())) {
                     const firstName = name.substring(0, name.length - parentLastName.length).trim();
