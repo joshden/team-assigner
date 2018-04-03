@@ -5,15 +5,26 @@ export default function createAssignmentGroups(children: ChildWithRules[]) {
     const groups : AssignmentGroup[] = [];
     for (const child of children) {
         const matchToUse = child.assignmentRule.potentialMatches[0];
+
+        if (matchToUse && matchToUse.team) {
+            groups
+                .filter(group => 
+                    ! group.hasChild(child)
+                    && group.rules.map(r => r.team).filter(t => t !== undefined).includes(matchToUse.team))
+                .forEach(g => addChildToGroup(g, child));
+        }
+
         let [group] = groups.filter(group => group.hasChild(child));
         if (! group) {
             group = addChildToGroup(new AssignmentGroup(), child);
             groups.push(group);
         }
+        
         children
             .filter(potentialGroupChild => ! group.hasChild(potentialGroupChild))
-            .filter(potentialGroupChild => { 
-                return matchToUse && matchToUse.teammates !== undefined && matchToUse.teammates.includes(potentialGroupChild.child);
+            .filter(potentialGroupChild => {
+                const isRequestedTeammate = matchToUse && matchToUse.teammates !== undefined && matchToUse.teammates.includes(potentialGroupChild.child);
+                return isRequestedTeammate;
             })
             .forEach(groupChild => addChildToGroup(group, groupChild));
     }
@@ -24,12 +35,7 @@ export default function createAssignmentGroups(children: ChildWithRules[]) {
         group.verifyNoContradictions();
     }
 
-    // siblings:
-    // otherChildren
-    //     .filter(otherChild => otherChild.parents === child.parents)
-    //     .forEach(otherChild => rules.push(withChildObj(otherChild)));
-
-    return mergedGroups;
+    return mergeNonContradictingGroupsWithSiblings(mergedGroups, children);
 }
 
 function getMergedGroups(groups: AssignmentGroup[]) {
@@ -61,4 +67,24 @@ function getMergedGroups(groups: AssignmentGroup[]) {
 
 function addChildToGroup(group: AssignmentGroup, child: ChildWithRules) {
     return group.addChild(child, child.assignmentRule.potentialMatches[0]);
+}
+
+function mergeNonContradictingGroupsWithSiblings(groups: AssignmentGroup[], children: ChildWithRules[]) {
+    const mergedGroupsToRemove : AssignmentGroup[] = [];
+    for (const child of children) {
+        const siblings = children.filter(c => c !== child && c.parents === child.parents);
+        if (siblings.length > 0) {
+            const group = groups.find(g => g.hasChild(child) && ! mergedGroupsToRemove.includes(g)) as AssignmentGroup;
+            for (const sibling of siblings) {
+                const siblingGroup = groups.find(g => g.hasChild(sibling) && ! mergedGroupsToRemove.includes(g)) as AssignmentGroup;
+                if (siblingGroup !== group) {
+                    if (group.isMergeAllowed(siblingGroup)) {
+                        group.mergeGroups(siblingGroup);
+                        mergedGroupsToRemove.push(siblingGroup);
+                    }
+                }
+            }
+        }
+    }
+    return groups.filter(g => ! mergedGroupsToRemove.includes(g));
 }
