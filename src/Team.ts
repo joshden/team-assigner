@@ -8,6 +8,10 @@ export class Team {
     ) { }
 }
 
+export class IdealForTeam {
+    
+}
+
 export class AssignedTeam {
     readonly children: ChildOnTeam[];
 
