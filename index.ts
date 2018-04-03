@@ -5,8 +5,8 @@ import parseChildrenAndParents from './src/data/parseChildrenAndParents';
 import TeamAssigner from './src/TeamAssigner';
 import { AssignmentRuleMapping } from './src/AssignmentRuleMapping';
 
-// If this module cannot be found, start by copying assignmentRuleMappings.sample.ts to assignmentRuleMappings.ts and modifying it
-import assignmentRuleMappings from './assignmentRuleMappings'; // TODO could also add to this corrections mappings like student last names
+// If this module cannot be found, start by copying customData.sample.ts to customData.ts and modifying it
+import { assignmentRuleMappings } from './customData'; // TODO could also add to this corrections mappings like student last names
 
 const logger = new Logger;
 const children = parseChildrenAndParents(path.resolve(__dirname, '..', '2018 FBA registration.xls'), logger);
