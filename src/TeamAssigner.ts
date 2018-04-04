@@ -8,13 +8,15 @@ import IdealTeamStats from "./IdealTeamStats";
 import Logger from "./Logger";
 import createAssignmentGroups from "./ChildGrouper";
 import { createIdealsForTeams } from "./TeamIdealCreator";
+import assignGroupstoTeams from "./GroupToTeamAssigner";
+import assignGroupsToTeams from "./GroupToTeamAssigner";
 
 export default class TeamAssigner {
     assignTeams(children: Child[], assignableTeams: Team[], teamsBySpecialRequestOnly: Set<string>, assignmentRuleMappings: AssignmentRuleMapping[], eventDate: Date, logger: Logger) {
         const childrenWithRules = this.getChildrenWithRules(children, assignableTeams, assignmentRuleMappings, eventDate, logger);
         const idealsForTeams = this.getIdealTeamStats(assignableTeams, teamsBySpecialRequestOnly, childrenWithRules);
         const groupsWithChildren = this.assignChildrenToGroups(childrenWithRules);
-        const teamsWithChildren = this.assignGroupsToTeams(groupsWithChildren, idealsForTeams);
+        const teamsWithChildren = assignGroupsToTeams(groupsWithChildren, idealsForTeams);
         return teamsWithChildren;
     }
 
@@ -31,10 +33,5 @@ export default class TeamAssigner {
 
     private assignChildrenToGroups(children: ChildWithRules[]) {
         return createAssignmentGroups(children);
-    }
-
-    private assignGroupsToTeams(assignmentGroups: AssignmentGroup[], idealsForTeams: IdealForTeam[]) {
-        // take into account groups that should not be with each other
-        return [] as AssignedTeam[];
     }
 }

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createChild, childWithRules } from './TestUtil';
+import { createChild, childWithRules, dateNumbers, genderDobChild } from './TestUtil';
 import { Gender } from '../src/Child';
 import { all, onTeam } from '../src/AssignmentRule';
 import { Team } from '../src/Team';
@@ -157,17 +157,11 @@ describe('TeamIdealCreator', () => {
 });
 
 function child(gender = Gender.Unknown, dob: string|null = null, team: Team|undefined = undefined) {
-    const baseChild = createChild({gender: gender, dob: dob === null ? null : new Date(dob)});
-    return childWithRules(baseChild, team ? onTeam(team.teamNumber) : all(), team ? [team] : [], []);
+    const baseChild = genderDobChild(gender, dob);
+    const ruleBuilder = team ? onTeam(team.teamNumber) : all();
+    return childWithRules(baseChild, ruleBuilder, team ? [team] : [], []);
 }
 
 function teamChild(team: Team|undefined = undefined, gender = Gender.Unknown, dob: string|null = null) {
     return child(gender, dob, team);
-}
-
-function dateNumbers(...values: [string|null, number][]) {
-    return new Map(values.map(value => {
-        const dateStr = value[0];
-        return [dateStr  === null ? null : new Date(dateStr), value[1]] as [Date|null, number]
-    }));
 }
