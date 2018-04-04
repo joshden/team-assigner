@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Team } from './Team';
 import Parents from './Parents';
-import { AssignmentRule } from './AssignmentRule';
+import { AssignmentRule, PotentialRuleMatch } from './AssignmentRule';
 
 export interface Child {
     readonly parents: Parents;
@@ -73,6 +73,14 @@ export class ChildWithRules extends ChildDecorator {
         readonly assignmentRule: AssignmentRule
     ) {
         super(child);
+    }
+
+    /**
+     * TODO this needs to be determined more intelligently when forming the groups to optimize and also to eliminate contradictions.
+     * But for now, just consolidate this knowledge to just one place.
+     */
+    get matchToUse() {
+        return this.assignmentRule.potentialMatches.length > 0 ? this.assignmentRule.potentialMatches[1] : new PotentialRuleMatch;
     }
 }
 

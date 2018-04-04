@@ -4,9 +4,9 @@ import AssignmentGroup from "./AssignmentGroup";
 export default function createAssignmentGroups(children: ChildWithRules[]) {
     const groups : AssignmentGroup[] = [];
     for (const child of children) {
-        const matchToUse = child.assignmentRule.potentialMatches[0];
+        const matchToUse = child.matchToUse;
 
-        if (matchToUse && matchToUse.team) {
+        if (matchToUse.team) {
             groups
                 .filter(group => 
                     ! group.hasChild(child)
@@ -19,7 +19,7 @@ export default function createAssignmentGroups(children: ChildWithRules[]) {
             group = addChildToGroup(new AssignmentGroup(), child);
             groups.push(group);
         }
-        
+
         children
             .filter(potentialGroupChild => ! group.hasChild(potentialGroupChild))
             .filter(potentialGroupChild => {
@@ -66,7 +66,7 @@ function getMergedGroups(groups: AssignmentGroup[]) {
 }
 
 function addChildToGroup(group: AssignmentGroup, child: ChildWithRules) {
-    return group.addChild(child, child.assignmentRule.potentialMatches[0]);
+    return group.addChild(child, child.matchToUse);
 }
 
 function mergeNonContradictingGroupsWithSiblings(groups: AssignmentGroup[], children: ChildWithRules[]) {

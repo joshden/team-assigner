@@ -27,7 +27,7 @@ describe('AssignmentGroup', () => {
 
         const group = createGroupWithFirstMatches(ruleChildA, ruleChildB);
         
-        expect(group.rules).to.deep.equal([ruleChildA.assignmentRule.potentialMatches[0]]);
+        expect(group.rules).to.deep.equal([ruleChildA.matchToUse]);
     });
 
     describe('verifyNoContradictions', () => {
@@ -63,7 +63,7 @@ describe('AssignmentGroup', () => {
 
         function verifyNoContradictions(...child: ChildWithRules[]) {
             const group = new AssignmentGroup();
-            child.forEach(child => group.addChild(child, child.assignmentRule.potentialMatches[0]));
+            child.forEach(child => group.addChild(child, child.matchToUse));
             group.verifyNoContradictions();
         }
 
@@ -167,7 +167,7 @@ describe('AssignmentGroup', () => {
 
         group1.mergeGroups(group2, group3);
         expect(group1.children).to.deep.equal([ruleChildA, ruleChildB, ruleChildC, ruleChildD, ruleChildE, ruleChildF]);
-        expect(group1.rules).to.deep.equal([ruleChildA, ruleChildB, ruleChildC, ruleChildE, ruleChildF].map(c => c.assignmentRule.potentialMatches[0]));
+        expect(group1.rules).to.deep.equal([ruleChildA, ruleChildB, ruleChildC, ruleChildE, ruleChildF].map(c => c.matchToUse));
     });
 
     function createChildWithRules(child: Child, rule: RuleBuilder, children: Child[]) {
@@ -178,6 +178,6 @@ describe('AssignmentGroup', () => {
 
 function createGroupWithFirstMatches(...children: ChildWithRules[]) {
     const group = new AssignmentGroup();
-    children.forEach(c => group.addChild(c, c.assignmentRule.potentialMatches[0]));
+    children.forEach(c => group.addChild(c, c.matchToUse));
     return group;
 }
