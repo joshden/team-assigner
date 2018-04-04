@@ -11,6 +11,24 @@ export default class AssignmentGroup {
         return this._matches;
     }
 
+    get childCount() {
+        return this.children.length;
+    }
+
+    get requiredTeam() {
+        return this._matches.map(match => match.team).find(t => t !== undefined);
+    }
+
+    get notTeams() {
+        const notTeams = new Set<Team>();
+        this._matches.forEach(match => { 
+            if (match.notTeams) {
+                match.notTeams.forEach(team => notTeams.add(team));
+            }
+        });
+        return Array.from(notTeams);
+    }
+
     addChild(child: ChildWithRules, match: PotentialRuleMatch) {
         this.children.push(child);
         if (match !== undefined) {

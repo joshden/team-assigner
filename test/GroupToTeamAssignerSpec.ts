@@ -4,10 +4,28 @@ import { Gender, ChildWithRules } from '../src/Child';
 import { all, onTeam, RuleBuilder } from '../src/AssignmentRule';
 import { Team, IdealForTeam } from '../src/Team';
 import { createIdealsForTeams } from '../src/TeamIdealCreator';
-import assignGroupstoTeams from '../src/GroupToTeamAssigner';
-import { mock } from 'ts-mockito';
+import assignGroupstoTeams, { GroupToTeamAssigner } from '../src/GroupToTeamAssigner';
+import { mock, instance, when } from 'ts-mockito';
+import AssignmentGroupSorter from '../src/AssignmentGroupSorter';
+import AssignmentGroup from '../src/AssignmentGroup';
+import _ from 'lodash';
 
 describe('GroupToTeamAssigner', () => {
+
+    it('sorts and assigns to teams', () => {
+        const groupMocks = _.times(5, () => mock(AssignmentGroup));
+        const idealsForTeams = _.times(3, () => mock(IdealForTeam));
+
+        const groups = groupMocks.map(g => instance(g));
+        const [group1, group2, group3, group4, group5] = groups;
+
+        const sorter = mock(AssignmentGroupSorter);
+        when(sorter.sortAssignmentGroups(groups)).thenReturn([group5, group2, group3, group1, group4]);
+
+        const assigner = new GroupToTeamAssigner(sorter);
+        assigner.assignGroupsToTeams(groups, idealsForTeams.map(i => instance(i)));
+
+    });
 
     it.skip('assigns to teams', () => {
         const child1 = genderDobChild(Gender.Female, '2005-05-12');

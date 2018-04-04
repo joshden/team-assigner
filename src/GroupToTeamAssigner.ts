@@ -26,7 +26,8 @@ export class GroupToTeamAssigner {
         // Could be separate classes
         //  Assignment group sorting
         //  Assignment Group bubble down to children whether group can be placed on specific team already with specific children
-        //  Assignment Group to report its stats for each gender, gender ages
+        //  Assignment Group to report its stats for each gender, gender ages, number of children
+        //  AssignedTeam to have addAssignmentGroup
         //  Relative and/or absolute team score for group being added to the team
         //  Logistics of adding each child in each group to the team
 
