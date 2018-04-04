@@ -4,7 +4,7 @@ import { ChildWithRules, Gender } from "./Child";
 export function createIdealsForTeams(assignableTeams: Team[], teamsBySpecialRequestOnly: Set<string>, allChildren: ChildWithRules[], maxGenderDobRangeCount = 3) {
     const specialRequestTeams = getSpecialRequestTeams(assignableTeams, teamsBySpecialRequestOnly);
     const nonSpecialTeamCount = assignableTeams.length - teamsBySpecialRequestOnly.size;
-    const children = allChildren.filter(child => ! specialRequestTeams.has(child.matchToUse.team as Team));
+    const children = allChildren.filter(child => ! child.matchToUse || ! specialRequestTeams.has(child.matchToUse.team as Team));
     const childrenPerTeam = children.length / nonSpecialTeamCount;
     const minChildrenPerTeam = Math.floor(childrenPerTeam);
     const maxChildrenPerTeam = Math.ceil(childrenPerTeam);

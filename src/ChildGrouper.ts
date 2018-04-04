@@ -6,7 +6,7 @@ export default function createAssignmentGroups(children: ChildWithRules[]) {
     for (const child of children) {
         const matchToUse = child.matchToUse;
 
-        if (matchToUse.team) {
+        if (matchToUse && matchToUse.team) {
             groups
                 .filter(group => 
                     ! group.hasChild(child)

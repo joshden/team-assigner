@@ -80,7 +80,7 @@ export class ChildWithRules extends ChildDecorator {
      * But for now, just consolidate this knowledge to just one place.
      */
     get matchToUse() {
-        return this.assignmentRule.potentialMatches.length > 0 ? this.assignmentRule.potentialMatches[1] : new PotentialRuleMatch;
+        return this.assignmentRule.potentialMatches[0];
     }
 }
 
