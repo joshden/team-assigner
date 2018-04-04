@@ -7,18 +7,19 @@ import getChildWithRules from './ChildWithRulesCreator';
 import IdealTeamStats from "./IdealTeamStats";
 import Logger from "./Logger";
 import createAssignmentGroups from "./ChildGrouper";
+import { createIdealsForTeams } from "./TeamIdealCreator";
 
 export default class TeamAssigner {
     assignTeams(children: Child[], assignableTeams: Team[], teamsBySpecialRequestOnly: Set<string>, assignmentRuleMappings: AssignmentRuleMapping[], eventDate: Date, logger: Logger) {
-        const idealsForTeams = this.getIdealTeamStats(assignableTeams, teamsBySpecialRequestOnly, children);
         const childrenWithRules = this.getChildrenWithRules(children, assignableTeams, assignmentRuleMappings, eventDate, logger);
+        const idealsForTeams = this.getIdealTeamStats(assignableTeams, teamsBySpecialRequestOnly, childrenWithRules);
         const groupsWithChildren = this.assignChildrenToGroups(childrenWithRules);
         const teamsWithChildren = this.assignGroupsToTeams(groupsWithChildren, idealsForTeams);
         return teamsWithChildren;
     }
 
-    private getIdealTeamStats(assignableTeams: Team[], teamsBySpecialRequestOnly: Set<string>, children: Child[]) {
-        return [] as IdealForTeam[];
+    private getIdealTeamStats(assignableTeams: Team[], teamsBySpecialRequestOnly: Set<string>, children: ChildWithRules[]) {
+        return createIdealsForTeams(assignableTeams, teamsBySpecialRequestOnly, children);
     }
 
     private getChildrenWithRules(children: Child[], assignableTeams: Team[], assignmentRuleMappings: AssignmentRuleMapping[], eventDate: Date, logger: Logger) {

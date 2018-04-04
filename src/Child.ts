@@ -9,7 +9,7 @@ export interface Child {
     readonly firstName: string;
     readonly lastName: string;
     readonly dateOfBirth: Date | null;
-    readonly gender: Gender | null;
+    readonly gender: Gender;
     readonly shirtSize: ShirtSize | null;
     findSiblings(children: Child[]): Child[];
 }
@@ -57,7 +57,7 @@ export class BaseChild implements Child {
         readonly firstName: string = '',
         readonly lastName: string = '',
         readonly dateOfBirth: Date | null = null,
-        readonly gender: Gender | null = null,
+        readonly gender: Gender = Gender.Unknown,
         readonly shirtSize: ShirtSize | null = null
     ) {}
 
@@ -87,7 +87,8 @@ export class ChildOnTeam extends ChildDecorator {
 
 export enum Gender {
     Male,
-    Female
+    Female,
+    Unknown
 }
 
 export enum ShirtSize {

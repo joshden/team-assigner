@@ -118,14 +118,14 @@ function createChild(parents: Parents, child: {[field: string]: any}, logger: Lo
         dob = new Date(child.ChildBirthday.replace(/\-/g, '/'));
     }
 
-    const gender = child.hasOwnProperty('ChildGender') && genderMapping.hasOwnProperty(child.ChildGender.toLowerCase()) ? genderMapping[child.ChildGender.toLowerCase()] : null;
+    const gender = child.hasOwnProperty('ChildGender') && genderMapping.hasOwnProperty(child.ChildGender.toLowerCase()) ? genderMapping[child.ChildGender.toLowerCase()] : Gender.Unknown;
     const shirtSize = child.hasOwnProperty('ChildShirtSize') && shirtSizeMapping.hasOwnProperty(child.ChildShirtSize.toLowerCase()) ? shirtSizeMapping[child.ChildShirtSize.toLowerCase()] : null;
 
     if (dob === null) {
         logger.warning(`Unexpected DOB ${child.ChildBirthday}`, child);
     }
 
-    if (gender === null) {
+    if (gender === Gender.Unknown) {
         logger.warning(`Unknown gender ${child.ChildGender}`, child);
     }
 
