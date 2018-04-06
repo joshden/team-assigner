@@ -6,6 +6,7 @@ import Parents from '../Parents';
 import { Child, BaseChild, Gender, ShirtSize } from '../Child';
 
 type StringKeyValue = {[key: string]: string};
+type FullNameFirstLast = {[key: string]: [string, string]};
 
 const nameRegex = /^([a-z]+?[-a-z ]*[a-z]+)|[a-z]$/i;
 const dateRegex = /^(\d{1,2}\/\d{1,2}\/(\d{2}){1,2})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)$/;
@@ -46,7 +47,7 @@ const childFields = [
     'ChildShirtSize',
 ];
 
-export default function parseChildrenAndParents(filePath: string, logger: Logger) {
+export default function parseChildrenAndParents(filePath: string, fullNameFirstLast: FullNameFirstLast, logger: Logger) {
     const rows = parseSheet(filePath, 'Sheet1');
 
     const parentsList: StringKeyValue[] = [];
@@ -77,7 +78,7 @@ export default function parseChildrenAndParents(filePath: string, logger: Logger
                 child.$childNum = childNum;
                 child.$parents = parents;
                 child.Notes = row.Notes;
-                children.push(createChild(parentsObj, child, logger));
+                children.push(createChild(parentsObj, child, fullNameFirstLast, logger));
             }
         });
     });
@@ -108,8 +109,8 @@ function createParents(parents: StringKeyValue, logger: Logger) {
     return new Parents(...names);
 }
 
-function createChild(parents: Parents, child: {[field: string]: any}, logger: Logger) {
-    const [firstName, lastName] = getChildFirstAndLastName(child, parents, logger);
+function createChild(parents: Parents, child: {[field: string]: any}, fullNameFirstLast: FullNameFirstLast, logger: Logger) {
+    const [firstName, lastName] = getChildFirstAndLastName(child, parents, fullNameFirstLast, logger);
     let dob: Date | null = null;
     if (dateRegex.test(child.ChildBirthday)) {
         dob = new Date(child.ChildBirthday);
@@ -136,7 +137,7 @@ function createChild(parents: Parents, child: {[field: string]: any}, logger: Lo
     return new BaseChild(parents, child.Notes, firstName, lastName, dob, gender, shirtSize);
 }
 
-function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parents, logger: Logger): [string, string] {
+function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parents, fullNameFirstLast: FullNameFirstLast, logger: Logger): [string, string] {
     let name = child.ChildName as string;
     if (! nameRegex.test(name)) {
         logger.warning(`Unexpected child name ${name}`, child);
@@ -157,8 +158,14 @@ function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parent
                 }
             }
 
-            logger.warning(`Assuming child name first/middle=${name} and last=${parentLastNames[0]} and not a different last name from parents`, child);
-            return [name, parentLastNames[0]];
+            if (fullNameFirstLast.hasOwnProperty(name)) {
+                return fullNameFirstLast[name];
+            }
+
+            else {
+                logger.warning(`Assuming child name first/middle=${name} and last=${parentLastNames[0]} and not a different last name from parents`, child);
+                return [name, parentLastNames[0]];
+            }
         }
         else {
             const last = namePieces.pop() as string;

@@ -7,6 +7,10 @@ export const teamsBySpecialRequestOnly = new Set([
     // 'A'
 ]);
 
+export const fullNameToFirstLastMapping = {
+    // 'Full Name': ['First Name', 'Last Name'],
+} as {[fullName: string]: [string, string]};
+
 export const assignmentRuleMappings = [
     mapping(notes('If possible, we would like our kids to be on the same team as Jon Doe.  Thank you!'),
         withChild('Jon', 'Doe'))
