@@ -40,7 +40,7 @@ export class GroupToTeamAssigner {
             const requiredTeam = teamsAndScores.find(ts => ts[1].desirability >= Desirability.Required);
             if (requiredTeam) {
                 const [team, score] = requiredTeam;
-                if (score.isOverMax) {
+                if (score.isOverMax && ! team.isSpecialRequestTeam) {
                     this.logger.warning('Assigning group to required team even though it is over max', group, team);
                 }
                 team.addGroup(group);

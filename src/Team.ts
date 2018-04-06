@@ -29,6 +29,14 @@ export class AssignedTeam {
     private readonly byGender: GenderCounts;
     private readonly byGenderDobRange: Map<Gender, DateRangeCounts>;
 
+    get team() {
+        return this.idealForTeam.team;
+    }
+
+    get isSpecialRequestTeam() {
+        return this.idealForTeam.isSpecialRequestTeam;
+    }
+
     constructor(private readonly idealForTeam: IdealForTeam) {
         const genders = Array.from(idealForTeam.byGender.keys());
         this.byGender = new Map(genders.map(g => [g, 0] as [Gender, number]));
