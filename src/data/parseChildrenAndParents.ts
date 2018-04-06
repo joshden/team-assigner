@@ -65,7 +65,7 @@ export default function parseChildrenAndParents(filePath: string, logger: Logger
             let isChild = false;
             childFields.forEach(field => {
                 const fieldName = field + childNum.toString();
-                if (row[fieldName].length > 0) {
+                if (row.hasOwnProperty(fieldName) && row[fieldName].length > 0) {
                     isChild = true;
                     child[field] = row[fieldName];
                 }

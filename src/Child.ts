@@ -5,7 +5,7 @@ import { AssignmentRule, PotentialRuleMatch } from './AssignmentRule';
 
 export interface Child {
     readonly parents: Parents;
-    readonly notes: string;
+    readonly notes: string | undefined;
     readonly firstName: string;
     readonly lastName: string;
     readonly dateOfBirth: Date | null;

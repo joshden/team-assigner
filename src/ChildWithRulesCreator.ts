@@ -39,7 +39,7 @@ export default function getChildWithRules(child: Child, assignmentRuleMappings: 
     }
     const compositeRule = rules.length === 1 ? rules[0] : all(...rules);
 
-    if (child.notes.length > 0 && ! wereChildNotesMatched) {
+    if (typeof child.notes === 'string' && child.notes.length > 0 && ! wereChildNotesMatched) {
         logger.warning('No applicable rule mapping was found for child notes', child);
     }
 

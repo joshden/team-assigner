@@ -16,3 +16,4 @@ const assignedTeams = teamAssigner.assignTeams(children, teams, teamsBySpecialRe
 
 // console.log(JSON.stringify(logger.entries, null, 2));
 // console.log(JSON.stringify(children, null, 2));
+// console.log(JSON.stringify(assignedTeams, null, 2));
