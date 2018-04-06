@@ -9,12 +9,17 @@ import { mock, instance, when } from 'ts-mockito';
 import AssignmentGroupSorter from '../src/AssignmentGroupSorter';
 import AssignmentGroup from '../src/AssignmentGroup';
 import _ from 'lodash';
+import Logger from '../src/Logger';
 
 describe('GroupToTeamAssigner', () => {
 
     it('sorts and assigns to teams', () => {
         const groupMocks = _.times(5, () => mock(AssignmentGroup));
-        const idealsForTeams = _.times(3, () => mock(IdealForTeam));
+        const idealsForTeams = _.times(3, () => { 
+            const ideal = mock(IdealForTeam);
+            when(ideal.byGender).thenReturn(new Map);
+            return ideal;
+        });
 
         const groups = groupMocks.map(g => instance(g));
         const [group1, group2, group3, group4, group5] = groups;
@@ -22,7 +27,7 @@ describe('GroupToTeamAssigner', () => {
         const sorter = mock(AssignmentGroupSorter);
         when(sorter.sortAssignmentGroups(groups)).thenReturn([group5, group2, group3, group1, group4]);
 
-        const assigner = new GroupToTeamAssigner(sorter);
+        const assigner = new GroupToTeamAssigner(sorter, new Logger);
         assigner.assignGroupsToTeams(groups, idealsForTeams.map(i => instance(i)));
 
     });

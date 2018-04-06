@@ -16,7 +16,7 @@ export default class TeamAssigner {
         const childrenWithRules = this.getChildrenWithRules(children, assignableTeams, assignmentRuleMappings, eventDate, logger);
         const idealsForTeams = this.getIdealTeamStats(assignableTeams, teamsBySpecialRequestOnly, childrenWithRules);
         const groupsWithChildren = this.assignChildrenToGroups(childrenWithRules);
-        const teamsWithChildren = assignGroupsToTeams(groupsWithChildren, idealsForTeams);
+        const teamsWithChildren = assignGroupsToTeams(groupsWithChildren, idealsForTeams, logger);
         return teamsWithChildren;
     }
 
