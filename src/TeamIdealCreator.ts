@@ -1,4 +1,4 @@
-import { Team, IdealForTeam } from "./Team";
+import { Team, IdealForTeam, GenderCounts, DateRangeCounts } from "./Team";
 import { ChildWithRules, Gender } from "./Child";
 
 export function createIdealsForTeams(assignableTeams: Team[], teamsBySpecialRequestOnly: Set<string>, allChildren: ChildWithRules[], maxGenderDobRangeCount = 3) {
@@ -8,18 +8,10 @@ export function createIdealsForTeams(assignableTeams: Team[], teamsBySpecialRequ
     const childrenPerTeam = children.length / nonSpecialTeamCount;
     const minChildrenPerTeam = Math.floor(childrenPerTeam);
     const maxChildrenPerTeam = Math.ceil(childrenPerTeam);
-
-    const byGender = new Map<Gender, number>();
-    const dobByGender = new Map<Gender, Array<Date | null>>();
-    const byGenderDobRange = new Map<Gender, Map<Date | null, number>>();
+    const {byGender, byGenderDobRange, dobByGender} = createEmptyMaps();
 
     children.forEach(child => {
         const gender = child.gender;
-        if (!byGender.has(gender)) {
-            byGender.set(gender, 0);
-            dobByGender.set(gender, []);
-            byGenderDobRange.set(gender, new Map());
-        }
         byGender.set(gender, byGender.get(gender) as number + 1);
         (dobByGender.get(gender) as Array<Date | null>).push(child.dateOfBirth);
     });
@@ -68,8 +60,8 @@ export function createIdealsForTeams(assignableTeams: Team[], teamsBySpecialRequ
             team,
             isSpecialRequestteam ? 0 : minChildrenPerTeam,
             isSpecialRequestteam ? 0 : maxChildrenPerTeam,
-            isSpecialRequestteam ? new Map() : byGender,
-            isSpecialRequestteam ? new Map() : byGenderDobRange,
+            isSpecialRequestteam ? createEmptyMaps().byGender : byGender,
+            isSpecialRequestteam ? createEmptyMaps().byGenderDobRange : byGenderDobRange,
             isSpecialRequestteam)
     });
 }
@@ -84,4 +76,21 @@ function getSpecialRequestTeams(allTeams: Team[], specialRequestNames: Set<strin
         specialRequestTeams.add(team);
     }
     return specialRequestTeams;
+}
+
+function createEmptyMaps() {
+    const byGender = new Map<Gender, number>();
+    const byGenderDobRange = new Map<Gender, Map<Date | null, number>>();
+    const dobByGender = new Map<Gender, Array<Date | null>>();
+
+    for (let item in Gender) {
+        if (isNaN(Number(item))) {
+            const gender = Gender[item] as any as Gender;
+            byGender.set(gender, 0);
+            byGenderDobRange.set(gender, new Map([[null, 0]]));
+            dobByGender.set(gender, []);
+        }
+    }
+
+    return { byGender, byGenderDobRange, dobByGender };
 }

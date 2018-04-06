@@ -1,11 +1,17 @@
 import { expect } from 'chai';
-import { createChild, childWithRules, dateNumbers, genderDobChild } from './TestUtil';
+import { createChild, childWithRules, dateNumbers, genderDobChild, createTeam } from './TestUtil';
 import { Gender } from '../src/Child';
 import { all, onTeam } from '../src/AssignmentRule';
-import { Team } from '../src/Team';
+import { Team, GenderCounts, DateRangeCounts } from '../src/Team';
 import { createIdealsForTeams } from '../src/TeamIdealCreator';
 
 describe('TeamIdealCreator', () => {
+    let expectedByGender: GenderCounts;
+    let expectedByGenderDobRange: Map<Gender, DateRangeCounts>;
+    beforeEach(() => {
+        ({ expectedByGender, expectedByGenderDobRange } = createEmptyMaps());
+    });
+
     it('returns ideal for each team of unknown DOB and unknown gender', () => {
         const teams = ['1','2','3'].map(name => new Team(name, []));
         const children = ['A','B','C','D','E','F','G'].map(name => child());
@@ -15,8 +21,10 @@ describe('TeamIdealCreator', () => {
         expect(idealsForTeams.map(i => i.team)).to.deep.equal(teams);
         idealsForTeams.forEach(ideal => expect(ideal.minChildren).to.equal(2));
         idealsForTeams.forEach(ideal => expect(ideal.maxChildren).to.equal(3));
-        idealsForTeams.forEach(ideal => expect(ideal.byGender).to.deep.equal(new Map([[Gender.Unknown, 7/3]])));
-        idealsForTeams.forEach(ideal => expect(ideal.byGenderDobRange).to.deep.equal(new Map([[Gender.Unknown, new Map([[null, 7/3]])]])));
+        expectedByGender.set(Gender.Unknown, 7/3);
+        idealsForTeams.forEach(ideal => expect(ideal.byGender).to.deep.equal(expectedByGender));
+        expectedByGenderDobRange.set(Gender.Unknown, new Map([[null, 7/3]]));
+        idealsForTeams.forEach(ideal => expect(ideal.byGenderDobRange).to.deep.equal(expectedByGenderDobRange));
     });
 
     it('handles no teams and no children', () => {
@@ -31,8 +39,8 @@ describe('TeamIdealCreator', () => {
         expect(idealsForTeams.map(i => i.team)).to.deep.equal(teams);
         idealsForTeams.forEach(ideal => expect(ideal.minChildren).to.equal(0));
         idealsForTeams.forEach(ideal => expect(ideal.maxChildren).to.equal(0));
-        idealsForTeams.forEach(ideal => expect(ideal.byGender).to.deep.equal(new Map()));
-        idealsForTeams.forEach(ideal => expect(ideal.byGenderDobRange).to.deep.equal(new Map()));
+        idealsForTeams.forEach(ideal => expect(ideal.byGender).to.deep.equal(expectedByGender));
+        idealsForTeams.forEach(ideal => expect(ideal.byGenderDobRange).to.deep.equal(expectedByGenderDobRange));
     });
 
     it("handles teams by special request", () => {
@@ -57,14 +65,16 @@ describe('TeamIdealCreator', () => {
         const regularTeamIdeals = [idealsForTeams[0], idealsForTeams[2]];
         regularTeamIdeals.forEach(ideal => expect(ideal.minChildren).to.equal(3));
         regularTeamIdeals.forEach(ideal => expect(ideal.maxChildren).to.equal(4));
-        regularTeamIdeals.forEach(ideal => expect(ideal.byGender).to.deep.equal(new Map([[Gender.Unknown, 3.5]])));
-        regularTeamIdeals.forEach(ideal => expect(ideal.byGenderDobRange).to.deep.equal(new Map([[Gender.Unknown, new Map([[null, 3.5]])]])));
+        expectedByGender.set(Gender.Unknown, 3.5);
+        regularTeamIdeals.forEach(ideal => expect(ideal.byGender).to.deep.equal(expectedByGender));
+        expectedByGenderDobRange.set(Gender.Unknown, new Map([[null, 3.5]]));
+        regularTeamIdeals.forEach(ideal => expect(ideal.byGenderDobRange).to.deep.equal(expectedByGenderDobRange));
 
         const specialIdeal = idealsForTeams[1];
         expect(specialIdeal.minChildren).to.equal(0);
         expect(specialIdeal.maxChildren).to.equal(0);
-        expect(specialIdeal.byGender).to.deep.equal(new Map());
-        expect(specialIdeal.byGenderDobRange).to.deep.equal(new Map());
+        expect(specialIdeal.byGender).to.deep.equal(createEmptyMaps().expectedByGender);
+        expect(specialIdeal.byGenderDobRange).to.deep.equal(createEmptyMaps().expectedByGenderDobRange);
     });
 
     it("handles all teams by special request only", () => {
@@ -77,8 +87,8 @@ describe('TeamIdealCreator', () => {
         const specialIdeal = idealsForTeams[1];
         expect(specialIdeal.minChildren).to.equal(0);
         expect(specialIdeal.maxChildren).to.equal(0);
-        expect(specialIdeal.byGender).to.deep.equal(new Map());
-        expect(specialIdeal.byGenderDobRange).to.deep.equal(new Map());
+        expect(specialIdeal.byGender).to.deep.equal(expectedByGender);
+        expect(specialIdeal.byGenderDobRange).to.deep.equal(expectedByGenderDobRange);
     });
 
     it("fails if invalid teams by special request only", () => {
@@ -164,4 +174,14 @@ function child(gender = Gender.Unknown, dob: string|null = null, team: Team|unde
 
 function teamChild(team: Team|undefined = undefined, gender = Gender.Unknown, dob: string|null = null) {
     return child(gender, dob, team);
+}
+
+function createEmptyMaps() {
+    const expectedByGender = new Map;
+    const expectedByGenderDobRange = new Map;
+    [Gender.Male, Gender.Female, Gender.Unknown].forEach(gender => {
+        expectedByGender.set(gender, 0);
+        expectedByGenderDobRange.set(gender, new Map([[null, 0]]));
+    });
+    return { expectedByGender, expectedByGenderDobRange };
 }
