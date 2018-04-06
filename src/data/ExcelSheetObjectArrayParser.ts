@@ -11,7 +11,7 @@ type StringKeyValue = {[key: string]: string};
  * @param sheetName 
  */
 export default function parseSheet(filePath: string, sheetName: string, headerRow: number = 1) {
-    const workbook = xlsx.readFile(filePath);
+    const workbook = xlsx.readFile(filePath, {cellDates: true});
     const sheet = workbook.Sheets[sheetName];
 
     const colHeaders: StringKeyValue = {};
@@ -23,8 +23,12 @@ export default function parseSheet(filePath: string, sheetName: string, headerRo
         const match = address.match(/^([A-Z]+)(\d+)$/);
         if (match !== null) {
             let cellValue: string;
-            if (['string', 'number'].includes(typeof sheet[address].v)) {
-                cellValue = sheet[address].v.toString().trim();
+            const value = sheet[address].v;
+            if (value instanceof Date) {
+                cellValue = value.toISOString();
+            }
+            else if (['string', 'number'].includes(typeof value)) {
+                cellValue = value.toString().trim();
             }
             else {
                 console.error(sheet[address]);
