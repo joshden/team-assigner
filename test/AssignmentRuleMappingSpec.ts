@@ -4,23 +4,24 @@ import Parents from "../src/Parents";
 import { expect } from 'chai';
 import { createChild } from "./TestUtil";
 import { create } from "domain";
+import AgeOnDate from "../src/AgeOnDate";
 
 describe('FindCriteria', () => {
     it('ageAtLeast', () => {
-        expectIsApplicableTrue(ageAtLeast(5), createChild({dob: new Date(2013, 3-1, 3)}), new Date(2018, 3-1, 3));
-        expectIsApplicableFalse(ageAtLeast(5), createChild({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3));
-        expectIsApplicableFalse(ageAtLeast(5), new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3));
+        expectIsApplicableTrue(ageAtLeast(5), createChild({dob: new Date('2013-03-03')}), new Date('2018-03-03'));
+        expectIsApplicableFalse(ageAtLeast(5), createChild({dob: new Date('2013-03-04')}), new Date('2018-03-03'));
+        expectIsApplicableFalse(ageAtLeast(5), new BaseChild(new Parents(), '', 'F', 'L', null), new Date('2018-03-03'));
     });
 
     it('ageLessThan', () => {
-        expectIsApplicableTrue(ageLessThan(5), createChild({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3));
-        expectIsApplicableFalse(ageLessThan(5), createChild({dob: new Date(2013, 3-1, 3)}), new Date(2018, 3-1, 3));
-        expectIsApplicableFalse(ageLessThan(5), new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3));
+        expectIsApplicableTrue(ageLessThan(5), createChild({dob: new Date('2013-03-04')}), new Date('2018-03-03'));
+        expectIsApplicableFalse(ageLessThan(5), createChild({dob: new Date('2013-03-03')}), new Date('2018-03-03'));
+        expectIsApplicableFalse(ageLessThan(5), new BaseChild(new Parents(), '', 'F', 'L', null), new Date('2018-03-03'));
     });
 
     it('unknownAge', () => {
-        expectIsApplicableTrue(unknownAge, new BaseChild(new Parents(), '', 'F', 'L', null), new Date(2018, 3-1, 3));
-        expectIsApplicableFalse(unknownAge, createChild({dob: new Date(2013, 3-1, 4)}), new Date(2018, 3-1, 3));
+        expectIsApplicableTrue(unknownAge, new BaseChild(new Parents(), '', 'F', 'L', null), new Date('2018-03-03'));
+        expectIsApplicableFalse(unknownAge, createChild({dob: new Date('2013-03-04')}), new Date('2018-03-03'));
     });
 
     it('notes', () => {
@@ -44,14 +45,14 @@ describe('FindCriteria', () => {
     });
 });
 
-function isApplicable(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date(2018, 3-1, 3)) {
-    return findCriteria.isApplicable(child, eventDate);
+function isApplicable(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date('2018-03-03')) {
+    return findCriteria.isApplicable(child, new AgeOnDate(eventDate));
 }
 
-function expectIsApplicableTrue(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date(2018, 3-1, 3)) {
+function expectIsApplicableTrue(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date('2018-03-03')) {
     expect(isApplicable(findCriteria, child, eventDate)[0]).to.be.true;
 }
 
-function expectIsApplicableFalse(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date(2018, 3-1, 3)) {
+function expectIsApplicableFalse(findCriteria: FindCriteria, child: Child, eventDate: Date = new Date('2018-03-03')) {
     expect(isApplicable(findCriteria, child, eventDate)[0]).to.be.false;
 }

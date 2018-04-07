@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import { Team } from './Team';
 import Parents from './Parents';
 import { AssignmentRule, PotentialRuleMatch } from './AssignmentRule';

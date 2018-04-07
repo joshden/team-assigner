@@ -6,6 +6,7 @@ import { taughtBy, withChild, withChildrenOf, not, any, all, withFamily_NotImple
 import Parents from "../src/Parents";
 import Teacher from "../src/Teacher";
 import Logger from "../src/Logger";
+import AgeOnDate from "../src/AgeOnDate";
 
 const parents1 = new Parents({firstName: "PFname", lastName: "PLname"});
 
@@ -98,6 +99,6 @@ child2, child4, child6
 
 describe('TeamAssigner', () => {
     it("doesn't fail", () => {
-        const assignedTeams = new TeamAssigner().assignTeams(children, teams, new Set(['A']), assignmentRuleMappings, new Date(2018, 4-1, 13), new Logger);
+        const assignedTeams = new TeamAssigner().assignTeams(children, teams, new Set(['A']), assignmentRuleMappings, new AgeOnDate(new Date('2018-04-13')), new Logger);
     });
 });

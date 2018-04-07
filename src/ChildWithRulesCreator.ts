@@ -3,8 +3,9 @@ import { AssignmentRuleMapping } from "./AssignmentRuleMapping";
 import { Team } from "./Team";
 import { AssignmentRule, RuleBuilder, all } from "./AssignmentRule";
 import Logger from "./Logger";
+import AgeOnDate from "./AgeOnDate";
 
-export default function getChildWithRules(child: Child, assignmentRuleMappings: AssignmentRuleMapping[], otherChildren: Child[], assignableTeams: Team[], eventDate: Date, logger: Logger) {
+export default function getChildWithRules(child: Child, assignmentRuleMappings: AssignmentRuleMapping[], otherChildren: Child[], assignableTeams: Team[], ageOnDate: AgeOnDate, logger: Logger) {
     // const assignmentRules: AssignmentRule[] = [];
     // const childrenInvolvedInRules: Child[] = [];
 
@@ -31,7 +32,7 @@ export default function getChildWithRules(child: Child, assignmentRuleMappings: 
     const rules: RuleBuilder[] = [];
     let wereChildNotesMatched = false;
     for (const mapping of assignmentRuleMappings) {
-        const [isApplicable, wereNotesMatched] = mapping.findCriteria.isApplicable(child, eventDate);
+        const [isApplicable, wereNotesMatched] = mapping.findCriteria.isApplicable(child, ageOnDate);
         if (isApplicable) {
             rules.push(mapping.rule);
             wereChildNotesMatched = wereChildNotesMatched || wereNotesMatched;

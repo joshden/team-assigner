@@ -1,7 +1,7 @@
 import { Child } from "./Child";
 import { Team } from "./Team";
 import { RuleBuilder } from "./AssignmentRule";
-import moment from 'moment';
+import AgeOnDate from "./AgeOnDate";
 
 export class AssignmentRuleMapping {
     constructor(
@@ -15,11 +15,11 @@ export function mapping(findCriteria: FindCriteria, rule: RuleBuilder) {
 }
 
 export class FindCriteria {
-    constructor(private readonly check: (child: Child, eventDate: Date) => boolean | [boolean, boolean]) {
+    constructor(private readonly check: (child: Child, ageOnDate: AgeOnDate) => boolean | [boolean, boolean]) {
     }
 
-    isApplicable(child: Child, eventDate: Date): [boolean, boolean] {
-        const result = this.check(child, eventDate);
+    isApplicable(child: Child, ageOnDate: AgeOnDate): [boolean, boolean] {
+        const result = this.check(child, ageOnDate);
         return typeof result === 'boolean' ? [result, false] : result;
     }
 }
@@ -33,11 +33,11 @@ export function child(firstName: string, lastName: string) {
 }
 
 export function ageAtLeast(age: number) {
-    return new FindCriteria((child, eventDate) => !!child.dateOfBirth && moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) >= age);
+    return new FindCriteria((child, ageOnDate) => !!child.dateOfBirth && ageOnDate.getYears(child.dateOfBirth) >= age);
 }
 
 export function ageLessThan(age: number) {
-    return new FindCriteria((child, eventDate) => !!child.dateOfBirth && moment(eventDate).diff(moment(child.dateOfBirth), 'years', true) < age);
+    return new FindCriteria((child, ageOnDate) => !!child.dateOfBirth && ageOnDate.getYears(child.dateOfBirth) < age);
 }
 
 export const unknownAge = new FindCriteria(child => !child.dateOfBirth);

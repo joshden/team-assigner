@@ -1,8 +1,8 @@
 import { AssignedTeam } from "../Team";
 import xlsx from 'xlsx';
 import { Gender } from "../Child";
-import moment from "moment";
 import _ from "lodash";
+import AgeOnDate from "../AgeOnDate";
 
 type ChildRow = {
     'Last Name': string;
@@ -13,12 +13,12 @@ type ChildRow = {
     'Notes': string;
 };
 
-export default function writeTeamAssignments(teams: AssignedTeam[], eventDate: Date, filePath: string) {
+export default function writeTeamAssignments(teams: AssignedTeam[], ageOnDate: AgeOnDate, filePath: string) {
     const childRows = _.flatten(teams.map(t => t.children.map(c => ({
         'Last Name': c.lastName,
         'First Name': c.firstName,
         'Gender': c.gender === Gender.Male ? 'Male' : c.gender === Gender.Female ? 'Female' : undefined,
-        'Age': c.dateOfBirth === null ? undefined : Math.round(moment(eventDate).diff(moment(c.dateOfBirth), 'years', true) * 10) / 10,
+        'Age': c.dateOfBirth === null ? undefined : Math.round(ageOnDate.getYears(c.dateOfBirth) * 10) / 10,
         'Team': t.team.teamNumber,
         'Notes': c.notes
     }) as ChildRow)))
