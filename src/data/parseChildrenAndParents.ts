@@ -60,7 +60,7 @@ export default function parseChildrenAndParents(filePath: string, fullNameFirstL
     
         const parents: StringKeyValue = { $rowNum: row.$rowNum };
         parentsFields.forEach(field => parents[field] = row[field]);
-    
+
         let parentsObj: Parents;
         _.range(1, 6).forEach(childNum => {
             const child: {[field: string]: any} = {};
@@ -158,6 +158,10 @@ function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parent
 
     if (namePieces.length > 1) {
         if (parentLastNames.length > 0) {
+            if (fullNameFirstLast.hasOwnProperty(name)) {
+                return fullNameFirstLast[name];
+            }
+
             for (const parentLastName of parentLastNames) {
                 if (name.toLowerCase().endsWith(parentLastName.toLowerCase())) {
                     const firstName = name.substring(0, name.length - parentLastName.length).trim();
@@ -166,14 +170,8 @@ function getChildFirstAndLastName(child: {[field: string]: any}, parents: Parent
                 }
             }
 
-            if (fullNameFirstLast.hasOwnProperty(name)) {
-                return fullNameFirstLast[name];
-            }
-
-            else {
-                logger.warning(`Assuming child name first/middle=${name} and last=${parentLastNames[0]} and not a different last name from parents`, child);
-                return [name, parentLastNames[0]];
-            }
+            logger.warning(`Assuming child name first/middle=${name} and last=${parentLastNames[0]} and not a different last name from parents`, child);
+            return [name, parentLastNames[0]];
         }
         else {
             const last = namePieces.pop() as string;
