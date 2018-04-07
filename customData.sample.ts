@@ -20,6 +20,11 @@ export const fullNameToFirstLastMapping = {
     // 'Full Name': ['First Name', 'Last Name'],
 } as {[fullName: string]: [string, string]};
 
+export const childrenToIgnore = matchAny(
+    notMatch(matchAny()),
+    //  matchAll(child('Jane', 'Doe'), gender(Gender.Unknown), unknownAge, parent('John', 'Doe')),
+);
+
 export const assignmentRuleMappings = [
     mapping(notes('If possible, we would like our kids to be on the same team as Jon Doe.  Thank you!'),
         withChild('Jon', 'Doe'))

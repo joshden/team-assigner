@@ -15,7 +15,7 @@ const ageOnDate = new AgeOnDate(data.eventDate);
 const children = parseChildrenAndParents(data.childParentsFilePath, data.fullNameToFirstLastMapping, ageOnDate, data.ignoreAgeLessThan, data.ignoreAgeGreaterThan, logger);
 const teams = parseTeamsAndTeachers(data.teamsAndTeachersFilePath);
 const teamAssigner = new TeamAssigner;
-const assignedTeams = teamAssigner.assignTeams(children, teams, data.teamsBySpecialRequestOnly, data.assignmentRuleMappings, ageOnDate, logger);
+const assignedTeams = teamAssigner.assignTeams(children, teams, data.teamsBySpecialRequestOnly, data.assignmentRuleMappings, data.childrenToIgnore, ageOnDate, logger);
 writeTeamAssignments(assignedTeams, ageOnDate, data.teamAssignmentsFilePath);
 
 // console.log(JSON.stringify(logger.entries, null, 2));

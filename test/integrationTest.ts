@@ -99,6 +99,6 @@ child2, child4, child6
 
 describe('TeamAssigner', () => {
     it("doesn't fail", () => {
-        const assignedTeams = new TeamAssigner().assignTeams(children, teams, new Set(['A']), assignmentRuleMappings, new AgeOnDate(new Date('2018-04-13')), new Logger);
+        const assignedTeams = new TeamAssigner().assignTeams(children, teams, new Set(['A']), assignmentRuleMappings, notMatch(matchAny()), new AgeOnDate(new Date('2018-04-13')), new Logger);
     });
 });

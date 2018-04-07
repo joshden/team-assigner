@@ -35,6 +35,8 @@ export default function createAssignmentGroups(children: ChildWithRules[]) {
         group.verifyNoContradictions();
     }
 
+    // throw new Error(`Largest group size: ${mergedGroups.map(g => g.childCount).reduce((accum, current) => Math.max(accum, current))}`);
+
     return mergeNonContradictingGroupsWithSiblings(mergedGroups, children);
 }
 
