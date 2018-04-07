@@ -21,6 +21,10 @@ writeTeamAssignments(assignedTeams, ageOnDate, data.teamAssignmentsFilePath);
 // console.log(JSON.stringify(logger.entries, null, 2));
 // console.log(JSON.stringify(children, null, 2));
 
+// const teamVariances = assignedTeams.map(team => team.getCompositionReport());
+// const overallVariance = teamVariances.map(r => r.weightedVariance).reduce((acc, val) => acc + val);
+// console.log({overallVariance, teamVariances});
+
 // logger.entries
 //     .filter(e => e.message.startsWith('Assuming child name'))
 //     .map(e => e.params[0] as any)

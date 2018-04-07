@@ -1,6 +1,7 @@
 import {Child, ChildOnTeam, Gender} from "./Child";
 import Teacher from "./Teacher";
 import AssignmentGroup from "./AssignmentGroup";
+import { getDobRangeCounts, NullableDate } from "./TeamIdealCreator";
 
 export class Team {
     constructor(
@@ -38,41 +39,47 @@ export class AssignedTeam {
     }
 
     constructor(private readonly idealForTeam: IdealForTeam) {
+        // console.log(idealForTeam.byGenderDobRange);
         const genders = Array.from(idealForTeam.byGender.keys());
         this.byGender = new Map(genders.map(g => [g, 0] as [Gender, number]));
         this.byGenderDobRange = new Map(genders.map(gender => 
             [
                 gender, 
-                new Map(Array.from((idealForTeam.byGenderDobRange.get(gender) as DateRangeCounts).keys()).map(d => [d, 0] as [Date|null, number]))
+                new Map(Array.from((idealForTeam.byGenderDobRange.get(gender) as DateRangeCounts).keys()).map(d => [d, 0] as [NullableDate, number]))
             ] as [Gender, DateRangeCounts]
         ));
     }
 
     getScore(group: AssignmentGroup): TeamScore {
-        const oldSize = this.children.length;
-        const sizeIncrease = group.childCount;
-        const newSize = oldSize + sizeIncrease;
-        const minSize = this.idealForTeam.minChildren;
-        const maxSize = this.idealForTeam.maxChildren;
-
         let score = 0;
 
-        if (newSize > maxSize) {
-            score -= 10;
-        }
-        else if (newSize > minSize) {
-            score -= 2;
-        }
-        else {
-            score += (minSize - newSize);
-        }
+        const currentSize = this.children.length;
+        const targetSize = this.idealForTeam.minChildren;
+        const increaseInSize = group.childCount;
+        score = this.adjustScore(score, currentSize, targetSize, increaseInSize, 1.0);
 
-        // for each gender
-        //  if new count is greater than expected, reduce score by the amount it is greater
-        //  if new count is less than expected, increase score by the amount this helped
+        for (const gender of Array.from(this.idealForTeam.byGender.keys())) {
+            const targetSizesByDobRange = this.idealForTeam.byGenderDobRange.get(gender) as Map<NullableDate, number>;
+            const dobRanges = Array.from(targetSizesByDobRange.keys());
+            const currentSizesByDobRange = this.byGenderDobRange.get(gender) as Map<NullableDate, number>;
+            const newGenderDobs = group.children.filter(child => child.gender === gender).map(child => child.dateOfBirth);
+            const increaseInSizesByDobRange = getDobRangeCounts(dobRanges, newGenderDobs);
+
+            const currentGenderSize = this.byGender.get(gender) as number;
+            const targetGenderSize = this.idealForTeam.byGender.get(gender) as number;
+            const increaseInGenderSize = newGenderDobs.length;
+            score = this.adjustScore(score, currentGenderSize, targetGenderSize, increaseInGenderSize, 0.7);
+
+            for (const rangeDate of dobRanges) {
+                const currentRangeSize = currentSizesByDobRange.get(rangeDate) as number;
+                const targetRangeSize = targetSizesByDobRange.get(rangeDate) as number;
+                const increaseInRangeSize = increaseInSizesByDobRange.get(rangeDate) as number;
+                score = this.adjustScore(score, currentRangeSize, targetRangeSize, increaseInRangeSize, 0.3);
+            }
+        }
 
         return {
-            isOverMax: newSize > maxSize,
+            isOverMax: currentSize + increaseInSize > this.idealForTeam.maxChildren,
             desirability: this.getDesirability(group),
             score: score
         };
@@ -92,19 +99,33 @@ export class AssignedTeam {
         return Desirability.Allowed;
     }
 
+    private adjustScore(score: number, currentSize: number, targetSize: number, increaseInSize: number, scalingFactor: number) {
+        const currentSizeHeadroom = targetSize - currentSize;
+        const newSize = currentSize + increaseInSize;
+
+        if (newSize > targetSize) {
+            if (currentSizeHeadroom > 0) {
+                score -= (increaseInSize - currentSizeHeadroom) * scalingFactor;
+            }
+            else {
+                score -= increaseInSize * scalingFactor;
+            }
+        }
+        else {
+            score += increaseInSize * scalingFactor;
+        }
+
+        return score;
+    }
+
     addGroup(group: AssignmentGroup) {
         this.assignmentGroup.mergeGroups(group);
         for (const child of group.children) {
             this.children.push(new ChildOnTeam(child, this.idealForTeam.team));
             const gender = child.gender;
             const dob = child.dateOfBirth;
-            // TODO need to handle if we don't have this gender in the map yet.
             this.byGender.set(gender, (this.byGender.get(gender) as number) + 1);
             const dobRangeCounts = (this.byGenderDobRange.get(gender) as DateRangeCounts);
-            if (! dobRangeCounts) {
-                console.log('gender', gender);
-                console.log('byGenderDobRange', this.byGenderDobRange);
-            }
             if (dob === null) {
                 dobRangeCounts.set(null, (dobRangeCounts.get(null) as number) + 1);
             }
@@ -119,13 +140,37 @@ export class AssignedTeam {
         }
     }
 
+    getCompositionReport() {
+        const currentSize = this.children.length;
+        const targetSize = this.idealForTeam.minChildren;
+        const sizeVariance = Math.abs(currentSize - targetSize);
 
-    // constructor(
-    //     readonly team: Team,
-    //     children: Child[]
-    // ) {
-    //     this.children = children.map(child => new ChildOnTeam(child, this.team))
-    // }
+        let [genderVariance, genderDobRangeVariance] = [0, 0];
+
+        const genders = Array.from(this.idealForTeam.byGender.keys());
+        for (const gender of genders) {
+            const targetSizesByDobRange = this.idealForTeam.byGenderDobRange.get(gender) as Map<NullableDate, number>;
+            const dobRanges = Array.from(targetSizesByDobRange.keys());
+            const currentSizesByDobRange = this.byGenderDobRange.get(gender) as Map<NullableDate, number>;
+
+            const currentGenderSize = this.byGender.get(gender) as number;
+            const targetGenderSize = this.idealForTeam.byGender.get(gender) as number;
+            genderVariance += Math.abs(currentGenderSize - targetGenderSize);
+
+            for (const rangeDate of dobRanges) {
+                const currentRangeSize = currentSizesByDobRange.get(rangeDate) as number;
+                const targetRangeSize = targetSizesByDobRange.get(rangeDate) as number;
+                genderDobRangeVariance += Math.abs(currentRangeSize - targetRangeSize);
+            }
+        }
+
+        return {
+            weightedVariance: Math.round((sizeVariance + genderVariance * 0.7 + genderDobRangeVariance * 0.3) * 100) / 100,
+            sizeVariance,
+            genderVariance: Math.round(genderVariance / genders.length * 100) / 100,
+            genderDobRangeVariance: Math.round(genderVariance / (genders.length * 4) * 100) / 100,
+        };
+    }
 }
 
 export enum Desirability {
