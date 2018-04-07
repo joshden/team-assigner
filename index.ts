@@ -12,7 +12,7 @@ import AgeOnDate from './src/AgeOnDate';
 
 const logger = new Logger;
 const ageOnDate = new AgeOnDate(data.eventDate);
-const children = parseChildrenAndParents(data.childParentsFilePath, data.fullNameToFirstLastMapping, logger);
+const children = parseChildrenAndParents(data.childParentsFilePath, data.fullNameToFirstLastMapping, ageOnDate, data.ignoreAgeLessThan, data.ignoreAgeGreaterThan, logger);
 const teams = parseTeamsAndTeachers(data.teamsAndTeachersFilePath);
 const teamAssigner = new TeamAssigner;
 const assignedTeams = teamAssigner.assignTeams(children, teams, data.teamsBySpecialRequestOnly, data.assignmentRuleMappings, ageOnDate, logger);

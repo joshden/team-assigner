@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import Logger from '../Logger';
 import Parents from '../Parents';
 import { Child, BaseChild, Gender, ShirtSize } from '../Child';
+import AgeOnDate from '../AgeOnDate';
 
 type StringKeyValue = {[key: string]: string};
 type FullNameFirstLast = {[key: string]: [string, string]};
@@ -47,7 +48,7 @@ const childFields = [
     'ChildShirtSize',
 ];
 
-export default function parseChildrenAndParents(filePath: string, fullNameFirstLast: FullNameFirstLast, logger: Logger) {
+export default function parseChildrenAndParents(filePath: string, fullNameFirstLast: FullNameFirstLast, ageOnDate: AgeOnDate, ignoreAgeLessThan: number, ignoreAgeGreaterThan: number, logger: Logger) {
     const rows = parseSheet(filePath, 'Sheet1');
 
     const parentsList: StringKeyValue[] = [];
@@ -78,7 +79,7 @@ export default function parseChildrenAndParents(filePath: string, fullNameFirstL
                 child.$childNum = childNum;
                 child.$parents = parents;
                 child.Notes = row.Notes;
-                children.push(createChild(parentsObj, child, fullNameFirstLast, logger));
+                children.push(createChild(parentsObj, child, fullNameFirstLast, ageOnDate, ignoreAgeLessThan, ignoreAgeGreaterThan, logger));
             }
         });
     });
@@ -109,7 +110,7 @@ function createParents(parents: StringKeyValue, logger: Logger) {
     return new Parents(...names);
 }
 
-function createChild(parents: Parents, child: {[field: string]: any}, fullNameFirstLast: FullNameFirstLast, logger: Logger) {
+function createChild(parents: Parents, child: {[field: string]: any}, fullNameFirstLast: FullNameFirstLast, ageOnDate: AgeOnDate, ignoreAgeLessThan: number, ignoreAgeGreaterThan: number, logger: Logger) {
     const [firstName, lastName] = getChildFirstAndLastName(child, parents, fullNameFirstLast, logger);
     let dob: Date | null = null;
     if (dateRegex.test(child.ChildBirthday)) {
@@ -117,6 +118,13 @@ function createChild(parents: Parents, child: {[field: string]: any}, fullNameFi
     }
     else if (typeof child.ChildBirthday === 'string' && dateRegex.test(child.ChildBirthday.replace(/\-/g, '/'))) {
         dob = new Date(child.ChildBirthday.replace(/\-/g, '/'));
+    }
+    
+    if (dob instanceof Date) {
+        const age = ageOnDate.getYears(dob);
+        if (age < ignoreAgeLessThan || age > ignoreAgeGreaterThan) {
+            dob = null;
+        }
     }
 
     const gender = child.hasOwnProperty('ChildGender') && genderMapping.hasOwnProperty(child.ChildGender.toLowerCase()) ? genderMapping[child.ChildGender.toLowerCase()] : Gender.Unknown;

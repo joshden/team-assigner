@@ -5,6 +5,8 @@ import * as r from './src/AssignmentRule';
 import { onTeam, taughtBy, withChild, withChildrenOf, not, any, all } from "./src/AssignmentRule";
 
 export const eventDate = new Date('2018-04-13');
+export const ignoreAgeLessThan = 0;
+export const ignoreAgeGreaterThan = 14;
 
 export const teamsAndTeachersFilePath = path.resolve(__dirname, '..', 'teamsAndTeachers.xlsx');
 export const childParentsFilePath = path.resolve(__dirname, '..', 'childrenAndParents.xls');
