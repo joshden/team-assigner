@@ -34,6 +34,13 @@ export class AssignedTeam {
         return this.idealForTeam.team;
     }
 
+    get info() {
+        return {
+            team: this.idealForTeam.team,
+            children: this.children.map(c => ({firstName: c.firstName, lastName: c.lastName}))
+        }
+    }
+
     get isSpecialRequestTeam() {
         return this.idealForTeam.isSpecialRequestTeam;
     }

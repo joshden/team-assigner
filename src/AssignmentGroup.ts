@@ -19,6 +19,10 @@ export default class AssignmentGroup {
         return this._matches.map(match => match.team).find(t => t !== undefined);
     }
 
+    get childNames() {
+        return this.children.map(c => ({firstName: c.firstName, lastName: c.lastName}));
+    }
+
     get notTeams() {
         const notTeams = new Set<Team>();
         this._matches.forEach(match => { 
