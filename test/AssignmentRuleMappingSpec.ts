@@ -1,8 +1,8 @@
-import { ageAtLeast, ageLessThan, unknownAge, notes, FindCriteria, child, matchAny, matchAll } from "../src/AssignmentRuleMapping";
-import { BaseChild, Child } from "../src/Child";
+import { ageAtLeast, ageLessThan, unknownAge, notes, FindCriteria, child, matchAny, matchAll, gender } from "../src/AssignmentRuleMapping";
+import { BaseChild, Child, Gender } from "../src/Child";
 import Parents from "../src/Parents";
 import { expect } from 'chai';
-import { createChild } from "./TestUtil";
+import { createChild, genderDobChild } from "./TestUtil";
 import { create } from "domain";
 import AgeOnDate from "../src/AgeOnDate";
 
@@ -42,6 +42,18 @@ describe('FindCriteria', () => {
     it('blank empty and all', () => {
         expectIsApplicableTrue(matchAny(), createChild());
         expectIsApplicableTrue(matchAll(), createChild());
+    });
+
+    it('gender', () => {
+        const unknownChild = genderDobChild(Gender.Unknown);
+        const maleChild = genderDobChild(Gender.Male);
+        const femaleChild = genderDobChild(Gender.Female);
+
+        expect(isApplicable(gender(Gender.Unknown), unknownChild)[0]).to.deep.equal(true);
+        expect(isApplicable(gender(Gender.Male), femaleChild)[0]).to.deep.equal(false);
+        expect(isApplicable(gender(Gender.Female), femaleChild)[0]).to.deep.equal(true);
+        expect(isApplicable(gender(Gender.Male), maleChild)[0]).to.deep.equal(true);
+        expect(isApplicable(gender(Gender.Male), unknownChild)[0]).to.deep.equal(false);
     });
 });
 

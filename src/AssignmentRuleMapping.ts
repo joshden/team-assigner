@@ -1,4 +1,4 @@
-import { Child } from "./Child";
+import { Child, Gender } from "./Child";
 import { Team } from "./Team";
 import { RuleBuilder } from "./AssignmentRule";
 import AgeOnDate from "./AgeOnDate";
@@ -18,6 +18,12 @@ export class FindCriteria {
     constructor(private readonly check: (child: Child, ageOnDate: AgeOnDate) => boolean | [boolean, boolean]) {
     }
 
+    /**
+     * 
+     * @param child 
+     * @param ageOnDate 
+     * @returns [isApplicable: boolean, wereNotesMatched: boolean] 
+     */
     isApplicable(child: Child, ageOnDate: AgeOnDate): [boolean, boolean] {
         const result = this.check(child, ageOnDate);
         return typeof result === 'boolean' ? [result, false] : result;
@@ -44,6 +50,10 @@ export const unknownAge = new FindCriteria(child => !child.dateOfBirth);
 
 export function parent(firstName: string, lastName: string) {
     return new FindCriteria(child => child.parents.names.some(name => name.firstName === firstName && name.lastName === lastName));
+}
+
+export function gender(gender: Gender) {
+    return new FindCriteria(child => child.gender === gender);
 }
 
 export function matchAll(...criteria: FindCriteria[]) {
