@@ -30,6 +30,17 @@ writeTeamAssignments(assignedTeams, ageOnDate, data.teamAssignmentsFilePath);
 //     .map(e => e.params[0] as any)
 //     .forEach(child => console.log(`Parent: ${child.$parents.FirstName} ${child.$parents.LastName}\nChild: ${child.ChildName}\n`));
 
+
+// function singleQuoteEscape(value: string | undefined) {
+//     return typeof value === 'string' ? value.replace(/'/g, "\\'") : '';
+// }
+// logger.entries
+//     .filter(e => e.message.startsWith('No applicable rule mapping was found for child notes'))
+//     .map(e => e.params[0] as Child)
+//     .forEach(child => console.log(`mapping(matchAll(notes('${singleQuoteEscape(child.notes)}'),\n` + 
+//                                   `        child('${singleQuoteEscape(child.firstName)}', '${singleQuoteEscape(child.lastName)}')),\n` +
+//                                   `    all()),\n`));
+
 // const names = [
 //     'FirstName LastName'
 // ];
