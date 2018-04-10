@@ -139,7 +139,7 @@ function createChild(parents: Parents, child: {[field: string]: any}, fullNameFi
     }
 
     if (shirtSize === null) {
-        logger.warning(`Unknown shirt size ${child.ShirtSize}`, child);
+        // logger.warning(`Unknown shirt size ${child.ShirtSize}`, child);
     }
 
     return new BaseChild(parents, child.Notes, firstName, lastName, dob, gender, shirtSize);
