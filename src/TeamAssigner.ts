@@ -27,8 +27,11 @@ export default class TeamAssigner {
     }
 
     private getChildrenWithRules(children: Child[], assignableTeams: Team[], assignmentRuleMappings: AssignmentRuleMapping[], childrenToIgnore: FindCriteria, ageOnDate: AgeOnDate, logger: Logger) {
-        return children
-            .filter(child => ! childrenToIgnore.isApplicable(child, ageOnDate)[0])
+        const filteredChildren = children.filter(child => ! childrenToIgnore.isApplicable(child, ageOnDate)[0]);
+        // if (filteredChildren.length < children.length) {
+        //     console.log('filtered some');
+        // }
+        return filteredChildren
             .map(child => {
                 const otherChildren = children.filter(c => c !== child);
                 return getChildWithRules(child, assignmentRuleMappings, otherChildren, assignableTeams, ageOnDate, logger)

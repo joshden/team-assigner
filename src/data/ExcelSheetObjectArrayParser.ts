@@ -30,6 +30,9 @@ export default function parseSheet(filePath: string, sheetName: string, headerRo
             else if (['string', 'number'].includes(typeof value)) {
                 cellValue = value.toString().trim();
             }
+            else if (typeof value === 'boolean') {
+                cellValue = value.toString();
+            }
             else {
                 console.error(sheet[address]);
                 throw new Error(`Unexpected type ${sheet[address].t} at ${address}`);
@@ -39,6 +42,7 @@ export default function parseSheet(filePath: string, sheetName: string, headerRo
             const newRowNum = Number(match[2]);
 
             if (newRowNum <= headerRow) {
+                cellValue = cellValue.replace(/^Field_/, '');
                 if (Object.values(colHeaders).includes(cellValue)) {
                     let num = 1;
                     while (Object.values(colHeaders).includes(`cellValue$${num}`)) {
@@ -49,6 +53,9 @@ export default function parseSheet(filePath: string, sheetName: string, headerRo
                 colHeaders[colLetter] = cellValue;
             }
             else {
+                // if (cellValue === undefined) {
+                //     console.log({field:colHeaders[colLetter],cellValue});
+                // }
                 if (currentRowNum !== newRowNum) {
                     currentRowNum = newRowNum;
                     currentRow = { $rowNum: newRowNum.toFixed() };
